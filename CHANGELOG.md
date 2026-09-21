@@ -11,7 +11,35 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
-## [1.1.50] — first public beta
+## [1.1.51] — first public beta
+
+### Fixed
+- **The component's controls did nothing in a dropped-in copy.** Every pulse and
+  value change routes through a callbacks DAT, and the export left that DAT
+  switched off in the file it wrote — so **Install Skills**, **Help**, the
+  **Active** toggle and every menu were inert, with no error and no status
+  change. **1.1.50 is affected; use 1.1.51.**
+- **Installing skills into an unsaved project now says so.** Every scope but
+  `user` resolves against the project folder, and a project that has never been
+  saved still reports one — so the skills went to a directory the agent never
+  looks in, and the button appeared to do nothing.
+- **`view_operator` captures at the source's aspect ratio.** The presets were
+  fixed 16:9, so a square TOP came back letterboxed — black bars, and image
+  pixels no longer mapping to panel coordinates for a follow-up click — while a
+  panel COMP came back stretched. The preset is now a pixel budget and the
+  source decides the shape, so the same capture costs the same. A source smaller
+  than its budget is captured at its own size rather than enlarged. `resolution`
+  in the response reports what was actually captured.
+
+### Changed
+- **Auto-accept deletion ships on.** `delete_operator` no longer raises a
+  confirmation dialog by default. The dialog interrupted every build, and an
+  agent that can reach `delete_operator` already has `execute_code`. Turn
+  **Auto-accept deletion** off on the MCP page to be asked.
+- The component opens on the **MCP** page, where the server controls and the
+  generated client commands are.
+
+## [1.1.50] — withdrawn
 
 ### Added
 - **Any MCP client, not just Claude.** The component models Claude Code, Codex,
