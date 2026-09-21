@@ -97,8 +97,9 @@ extra:
       name: Derivative
 
 nav:
-  - Home:
-      - index.md
+  # index.md stays top level so MkDocs recognises it as the home page.
+  - index.md
+  - Getting started:
       - quick-start.md
       - what-you-get.md
   - Component:
