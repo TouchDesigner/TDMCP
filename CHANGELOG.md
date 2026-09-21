@@ -43,6 +43,13 @@ internal builds and were never published.
   and pages served from a loopback address were treated as trusted. Together
   those let a page open in your browser call tools. The header must now be
   present and JSON, which forces a preflight this server never answers.
+- **Skill downloads must use HTTPS, and installs are recorded.** Skills become
+  instruction files your agent reads in every later session, so `Skills Repo`
+  no longer accepts a plain `http://` URL, the manifest records the exact URL
+  and SHA-256 of what was installed, and the status says so when skills come
+  from somewhere other than the default repository. Downloads are protected by
+  TLS but are not signed — the record makes an install auditable rather than
+  proving it genuine.
 - **The consent dialog shows the real destination.** It was built from the URL's
   authority, which can carry a userinfo prefix, so a redirect registered as
   `https://claude.ai@evil.example/cb` displayed as `claude.ai@evil.example` while
