@@ -1,6 +1,6 @@
 # TouchDesigner MCP
 
-**An MCP server that runs inside TouchDesigner, so an AI coding agent can build your networks.**
+**An MCP server that runs inside TouchDesigner, so an AI coding agent can collaborate with you in a TouchDesigner environment.**
 
 Drop one component into your project and your agent gets 26 tools for creating operators, wiring them, setting parameters, reading DATs, inspecting runtime values and looking up TD documentation. Every change it makes is a single Ctrl+Z away.
 
