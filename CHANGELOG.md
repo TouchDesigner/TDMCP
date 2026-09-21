@@ -32,6 +32,17 @@ internal builds and were never published.
   a local TouchDesigner help install, the web, or auto.
 
 ### Security
+- **Consent cannot be granted by the caller.** A `POST /authorize` route passed
+  its raw request body to the consent handler, which reads the approve/deny
+  decision from that body — so a caller could register a client, approve itself,
+  and obtain a token for `execute_code` without the TouchDesigner popup ever
+  appearing. Enabling authentication was what mounted the endpoint. The route is
+  removed; consent comes from the popup and nowhere else.
+- **A web page can no longer reach the server.** The request gate allowed a
+  missing `Content-Type`, which a cross-origin `no-cors` request can produce,
+  and pages served from a loopback address were treated as trusted. Together
+  those let a page open in your browser call tools. The header must now be
+  present and JSON, which forces a preflight this server never answers.
 - **Serving beyond localhost now fails closed.** `All interfaces` is refused
   with `403` unless authentication *and* HTTPS are both enabled. Unauthenticated
   LAN access would expose `execute_code`; un-TLS'd LAN access would put bearer
