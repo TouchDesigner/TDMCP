@@ -23,27 +23,30 @@ theme:
     repo: fontawesome/brands/github
   palette:
     # Follow the reader's system setting by default, with a manual override.
+    # Colours themselves live in docs/stylesheets/extra.css: a white header,
+    # a sky-blue accent, and a darkened text variant of it for the light scheme.
     - media: "(prefers-color-scheme)"
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: black
-      accent: deep orange
+      primary: white
+      accent: light blue
       toggle:
         icon: material/weather-sunny
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: black
-      accent: deep orange
+      accent: light blue
       toggle:
         icon: material/weather-night
         name: Switch to system preference
+  # Body and code match derivative.ca. Headings take T-Star Pro via extra.css.
   font:
-    text: Inter
-    code: JetBrains Mono
+    text: Roboto
+    code: Roboto Mono
   features:
     - navigation.instant       # no full reload between pages
     - navigation.instant.progress
@@ -86,6 +89,9 @@ markdown_extensions:
 
 plugins:
   - search
+
+extra_css:
+  - stylesheets/extra.css
 
 extra:
   social:
