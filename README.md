@@ -6,7 +6,10 @@ Drop one component into your project and your agent gets 26 tools for creating o
 
 Works with Claude Code, Codex, Antigravity (`agy`), Cursor, OpenCode, and any other client that speaks streamable-HTTP MCP.
 
-> **Beta.** Found a bug? [Open an issue](https://github.com/TouchDesigner/TDMCP/issues) and include the version from the component's **About** page.
+> **Beta.** Found a bug, or want to ask something? Start a
+> [discussion](https://github.com/TouchDesigner/TDMCP/discussions) and include the
+> **Version** and **.tox Save Build** from the component's About page. Confirmed bugs
+> are tracked internally, so you may be asked for a reproduction before one is filed.
 
 ## Requirements
 
@@ -222,8 +225,9 @@ baked into that build, so a `.tox` can always be traced to its release: read
 **Version** on the component's About page and find the matching tag.
 
 This repository carries the documentation and the published builds. Development
-happens in a separate repository; open an
-[issue](https://github.com/TouchDesigner/TDMCP/issues) for bugs and requests.
+happens in a separate repository, so there is no issue tracker here — use
+[Discussions](https://github.com/TouchDesigner/TDMCP/discussions) for bugs,
+questions and requests.
 
 ## License
 
