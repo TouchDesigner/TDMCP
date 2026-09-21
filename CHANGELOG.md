@@ -43,6 +43,18 @@ internal builds and were never published.
   and pages served from a loopback address were treated as trusted. Together
   those let a page open in your browser call tools. The header must now be
   present and JSON, which forces a preflight this server never answers.
+- **The consent dialog shows the real destination.** It was built from the URL's
+  authority, which can carry a userinfo prefix, so a redirect registered as
+  `https://claude.ai@evil.example/cb` displayed as `claude.ai@evil.example` while
+  the browser would navigate to `evil.example`. Such URIs are now refused at
+  registration, the dialog reads the host itself, and the redirect is length
+  capped so it cannot push the prompt out of view. Bidi control characters are
+  also stripped from the displayed client name.
+- **Oversized requests are refused.** TouchDesigner's web server has no body
+  limit of its own and JSON parsing runs on the main thread, so a large request
+  could stall the application — before authentication. Bodies over 8 MB now get
+  `413`, and the skills download is bounded against an oversized archive or a
+  zip bomb.
 - **Serving beyond localhost now fails closed.** `All interfaces` is refused
   with `403` unless authentication *and* HTTPS are both enabled. Unauthenticated
   LAN access would expose `execute_code`; un-TLS'd LAN access would put bearer
