@@ -1,0 +1,4 @@
+mkdocs-material==9.7.7
+# MkDocs 2.0 is a breaking, unlicensed rewrite that drops the plugin system.
+# Pin to the 1.x line the Material theme is built against.
+mkdocs>=1.6.1,<2

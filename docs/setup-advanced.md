@@ -1,6 +1,6 @@
 # Advanced setup
 
-Everything past the [README](../README.md) quick start: non-default clients, HTTPS, Claude Desktop, running several instances, OAuth internals, and adding a client of your own.
+Everything past the [quick start](quick-start.md): non-default clients, HTTPS, Claude Desktop, running several instances, OAuth internals, and adding a client of your own.
 
 ## Other clients
 
@@ -69,7 +69,7 @@ Running `agy --print` needs an allow-list in `~/.gemini/antigravity-cli/settings
 { "permissions": { "allow": ["mcp(*)", "command(*)", "read_file(*)"] } }
 ```
 
-Headless also does not mount workspace skills. Install at user scope — see [Skills](../README.md#skills).
+Headless also does not mount workspace skills. Install at user scope — see [Skills](skills.md).
 
 ## HTTPS
 
