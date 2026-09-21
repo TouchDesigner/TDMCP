@@ -46,7 +46,7 @@ internal builds and were never published.
   Antigravity (`agy`), Cursor and OpenCode, and generates the exact registration
   command or config entry for whichever you pick. Client support is data rather
   than code, so a new client is a JSON record: see
-  [Adding an agent](https://touchdesigner.github.io/TDMCP/setup-advanced/#adding-an-agent).
+  [Adding an agent](docs/setup-advanced.md#adding-an-agent).
 - **Skills install with no clone.** Pulse **Install Skills** and the component
   downloads the latest published
   [TDMCPSkills](https://github.com/TouchDesigner/TDMCPSkills) release. Point
@@ -123,5 +123,5 @@ internal builds and were never published.
 
 ### Documentation
 - README rewritten for beta, with advanced setup split into
-  [Advanced setup](https://touchdesigner.github.io/TDMCP/setup-advanced/): non-default clients, HTTPS,
+  [docs/setup-advanced.md](docs/setup-advanced.md): non-default clients, HTTPS,
   Claude Desktop, running multiple instances, OAuth internals.
