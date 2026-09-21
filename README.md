@@ -2,7 +2,7 @@
 
 **An MCP server that runs inside TouchDesigner, so an AI coding agent can collaborate with you in a TouchDesigner environment.**
 
-Drop one component into your project and your agent gets 26 tools for creating operators, wiring them, setting parameters, reading DATs, inspecting runtime values and looking up TD documentation. Every change it makes is a single Ctrl+Z away.
+Drop one component into your project and your agent gets 26 tools for creating operators, wiring them, setting parameters, reading DATs, inspecting runtime values and looking up TD documentation.
 
 Works with Claude Code, Codex, Antigravity (`agy`), Cursor, OpenCode, and any other client that speaks streamable-HTTP MCP.
 
