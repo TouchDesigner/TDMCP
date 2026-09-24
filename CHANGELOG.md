@@ -11,6 +11,17 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
+## [1.1.53]
+
+### Fixed
+- **Docs Status showed the wrong source.** It only changed when `get_docs` ran,
+  so 1.1.52 said `🌐 web` even on a Mac whose install has the local docs, until
+  the first lookup. It is now worked out when the component starts and when
+  **Docs Source** or **Docs Path** changes. Docs were read locally all along;
+  only the label was wrong.
+- Local docs are found under the macOS bundle's `Learn/OfflineHelp` spelling
+  too, so a case-sensitive volume no longer falls back to the web.
+
 ## [1.1.52]
 
 ### Added
