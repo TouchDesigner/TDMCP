@@ -11,6 +11,28 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
+## [1.1.52]
+
+### Added
+- **Update** on the About page checks for a newer release and tells you whether
+  you need it. If there is one, it asks before doing anything, then replaces the
+  component in place and keeps your settings. The download is checked against
+  the release's `TDMCP.json` manifest, and a `.tox` saved by a newer
+  TouchDesigner than yours is refused. Nothing checks at startup. 1.1.51 has no
+  Update button, so update from it by hand once.
+- **OpenCode v2 (beta)** is its own entry in **Install For**, beside OpenCode
+  v1. v2 takes skills, registers per project or with `--global`, and nests its
+  config under `mcp.servers`. See [docs/opencode.md](docs/opencode.md), which
+  also covers running a local model with Ollama and why `"codemode": false`
+  matters for small models.
+
+### Changed
+- **Install For** lists every host the component knows, including any added
+  through **Host Override DAT**.
+- OpenCode v1 offers only **User** scope, because its CLI writes only the global
+  config. Project scope used to show that same global command beside a hint
+  naming `./opencode.json`, which the command never wrote.
+
 ## [1.1.51] — first public beta
 
 ### Fixed

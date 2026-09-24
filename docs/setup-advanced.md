@@ -13,7 +13,7 @@ The fastest route is always the component: pick your client in **Install For** a
 Run in your project directory.
 
 ```bash
-# Claude Code — the only CLI with a project scope
+# Claude Code — project scope with --scope project
 claude mcp add --transport http --scope project touchdesigner http://127.0.0.1:13316/mcp
 
 # Codex — always global (~/.codex/config.toml)
@@ -22,8 +22,11 @@ codex mcp add touchdesigner --url http://127.0.0.1:13316/mcp
 # Antigravity — always global; the scheme is detected, so no --type flag
 agy mcp add touchdesigner http://127.0.0.1:13316/mcp
 
-# OpenCode — global CLI, but it also reads a project ./opencode.json
+# OpenCode v1 — always global (~/.config/opencode/opencode.jsonc)
 opencode mcp add touchdesigner --url http://127.0.0.1:13316/mcp
+
+# OpenCode v2 beta — writes ./opencode.json; add --global for the user config
+opencode2 mcp add touchdesigner --url http://127.0.0.1:13316/mcp
 ```
 
 **Removal is not symmetric.** Claude Code, Codex and Antigravity all have `mcp remove`. OpenCode does not, despite having `mcp add`; delete the entry by hand. Cursor has no MCP CLI at all. For both, **Remove MCP** shows the file and the entry to edit instead of a command.
@@ -41,9 +44,16 @@ For clients with no `mcp add`, or when you want the mapping committed.
 { "mcpServers": { "touchdesigner": { "type": "http", "url": "http://127.0.0.1:13316/mcp" } } }
 ```
 ```jsonc
-// OpenCode — ./opencode.json in the project root, or the global
+// OpenCode v1 — ./opencode.json in the project root, or the global
 // ~/.config/opencode/opencode.jsonc. Note `mcp`, not `mcpServers`
 { "mcp": { "touchdesigner": { "type": "remote", "url": "http://127.0.0.1:13316/mcp" } } }
+```
+```jsonc
+// OpenCode v2 beta — ./opencode.json in the project root, or the global
+// ~/.config/opencode/opencode.json(c). Note `mcp.servers`, not `mcpServers`.
+// codemode: false hands the tools to the model directly instead of through
+// OpenCode's JavaScript `execute` layer, which small local models misuse
+{ "mcp": { "servers": { "touchdesigner": { "type": "remote", "url": "http://127.0.0.1:13316/mcp", "codemode": false } } } }
 ```
 ```json
 // Antigravity — ~/.gemini/config/mcp_config.json. Note `serverUrl`, not `url`
@@ -55,11 +65,11 @@ For clients with no `mcp add`, or when you want the mapping committed.
 url = "http://127.0.0.1:13316/mcp"
 ```
 
-No two of these agree. The container key is `mcpServers` for most, `mcp` for OpenCode and a `[mcp_servers.x]` table for Codex. The URL key is `url` everywhere except Antigravity, which needs `serverUrl` and rejects `url`. Copy the block for your client exactly.
+No two of these agree. The container key is `mcpServers` for most, `mcp` for OpenCode v1, `mcp.servers` for v2, and a `[mcp_servers.x]` table for Codex. The URL key is `url` everywhere except Antigravity, which needs `serverUrl` and rejects `url`. Copy the block for your client exactly.
 
-### Why only Claude Code has a project scope
+### Which clients have a project scope
 
-Its `mcp add` writes per-project config, and `--scope project` produces a committable `.mcp.json`. Codex writes only the global user config and does not auto-discover a project `.codex/config.toml`; `CODEX_HOME=./.codex` is the only project route. Antigravity is likewise global, with a plugin as its project route (`<project>/.agents/plugins/<name>/mcp_config.json`, registered with `agy plugin install`, appearing in the TUI's MCP Servers panel rather than in `agy mcp list`). OpenCode's CLI is global but it reads a project `opencode.json`.
+Its `mcp add` writes per-project config, and `--scope project` produces a committable `.mcp.json`. Codex writes only the global user config and does not auto-discover a project `.codex/config.toml`; `CODEX_HOME=./.codex` is the only project route. Antigravity is likewise global, with a plugin as its project route (`<project>/.agents/plugins/<name>/mcp_config.json`, registered with `agy plugin install`, appearing in the TUI's MCP Servers panel rather than in `agy mcp list`). OpenCode v1's CLI is global but it reads a project `opencode.json`. The v2 beta's `mcp add` writes a project `opencode.json` by default and the user config with `--global`. See [opencode.md](opencode.md).
 
 ### Antigravity headless
 

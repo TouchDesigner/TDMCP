@@ -119,7 +119,7 @@ Five pages: **MCP**, **Skills**, **Tune**, **Docs**, **About**.
 
 ### About
 
-**Help** opens this repository. **Version** and **.tox Save Build** are what to quote in a bug report.
+**Help** opens this repository. **Update** checks for a newer release and tells you whether you need it; if there is one it asks first, then replaces the component in place and keeps your settings. **Version** and **.tox Save Build** are what to quote in a bug report.
 
 ## Skills
 
@@ -134,12 +134,13 @@ Where they land depends on the client, because there is no shared directory:
 | Claude Code | `~/.claude/skills/` | `.claude/skills/` |
 | Codex | `~/.codex/skills/` | `.agents/skills/` |
 | Antigravity (`agy`) | `~/.gemini/config/skills/` | `.agents/skills/` |
+| OpenCode v2 (beta, `opencode2`) | `~/.config/opencode/skills/` | `.agents/skills/` |
 
-Codex and Antigravity share `<project>/.agents/skills/`, so one project install serves both.
+Codex, Antigravity and OpenCode v2 share `<project>/.agents/skills/`, so one project install serves all three.
 
 > **Antigravity, scripted:** its workspace skills mount in the interactive TUI but **not** under headless `agy --print`. If you drive `agy` from a script, install at **user** scope.
 
-Cursor and OpenCode have no skills mechanism we have been able to establish, so they are connection-only.
+Cursor and OpenCode v1 have no skills mechanism we have been able to establish, so they are connection-only. OpenCode v2, in beta, reads skills and is the most practical way to try a local model: see [docs/opencode.md](docs/opencode.md).
 
 **The component owns the `td-` namespace.** Each install removes any `td-*` skill *it previously installed* that the current source no longer ships, so renames do not leave orphans. A `td-*` folder it did not install is left alone, as is anything without the prefix.
 
@@ -162,12 +163,14 @@ The server exposes `execute_code`. Treat reaching it as equivalent to a shell on
 
 [**docs/setup-advanced.md**](docs/setup-advanced.md) covers:
 
-- [Per-client registration commands and config file shapes](docs/setup-advanced.md#other-clients) for Codex, Antigravity, Cursor and OpenCode, including the three traps: Antigravity needs `serverUrl` not `url`, OpenCode nests under `mcp` not `mcpServers`, Codex uses a TOML table
+- [Per-client registration commands and config file shapes](docs/setup-advanced.md#other-clients) for Codex, Antigravity, Cursor and OpenCode, including the three traps: Antigravity needs `serverUrl` not `url`, OpenCode nests under `mcp` (v2: `mcp.servers`) not `mcpServers`, Codex uses a TOML table
 - [HTTPS setup](docs/setup-advanced.md#https) with mkcert, per platform
 - [Claude Desktop](docs/setup-advanced.md#claude-desktop), which needs the `mcp-remote` bridge
 - [Multiple projects and side-by-side instances](docs/setup-advanced.md#multiple-instances)
 - [OAuth internals](docs/setup-advanced.md#oauth): state, endpoints, the event log
 - [Adding an agent](docs/setup-advanced.md#adding-an-agent) as a JSON record
+
+[**docs/opencode.md**](docs/opencode.md) covers OpenCode v1 and the v2 beta, running a local model with Ollama, Code Mode, and what has been learned so far about local agents driving TDMCP.
 
 ## Troubleshooting
 
