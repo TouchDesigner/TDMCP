@@ -4,7 +4,7 @@
 
 Drop one component into your project and your agent gets 26 tools for creating operators, wiring them, setting parameters, reading DATs, inspecting runtime values and looking up TD documentation.
 
-Works with Claude Code, Codex, Antigravity (`agy`), Cursor, OpenCode, and any other client that speaks streamable-HTTP MCP.
+Works with Claude Code, Codex, Antigravity (`agy`), OpenCode, and any other client that speaks streamable-HTTP MCP.
 
 > **Beta.** The interface may still change and feedback is wanted. Found a bug?
 > Open an [issue](https://github.com/TouchDesigner/TDMCP/issues); want to ask
