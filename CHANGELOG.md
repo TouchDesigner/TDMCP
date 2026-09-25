@@ -11,7 +11,14 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
-## [1.1.53]
+## [1.1.54] — 2026-09-24
+
+### Added
+- **The component has a logo.** Its node in the network shows the TDMCP lockup
+  with a **BETA** badge and the component's version, so you can see which build
+  a project carries without opening the About page.
+
+## [1.1.53] — 2026-09-24
 
 ### Fixed
 - **Docs Status showed the wrong source.** It only changed when `get_docs` ran,
@@ -22,7 +29,7 @@ internal builds and were never published.
 - Local docs are found under the macOS bundle's `Learn/OfflineHelp` spelling
   too, so a case-sensitive volume no longer falls back to the web.
 
-## [1.1.52]
+## [1.1.52] — 2026-09-24
 
 ### Added
 - **Update** on the About page checks for a newer release and tells you whether
@@ -44,7 +51,7 @@ internal builds and were never published.
   config. Project scope used to show that same global command beside a hint
   naming `./opencode.json`, which the command never wrote.
 
-## [1.1.51] — first public beta
+## [1.1.51] — 2026-09-21 — first public beta
 
 ### Fixed
 - **The component's controls did nothing in a dropped-in copy.** Every pulse and
@@ -72,7 +79,7 @@ internal builds and were never published.
 - The component opens on the **MCP** page, where the server controls and the
   generated client commands are.
 
-## [1.1.50] — withdrawn
+## [1.1.50] — 2026-09-20 — withdrawn
 
 ### Added
 - **Any MCP client, not just Claude.** The component models Claude Code, Codex,
