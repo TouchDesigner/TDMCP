@@ -11,6 +11,14 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
+## [1.1.55] — 2026-09-27
+
+### Changed
+- **The component's logo is a small embedded image.** 1.1.54 drew it with a
+  Web Render TOP, which started a browser process in every project the
+  component was dropped into. It is now a PNG inside the component (about
+  13 KB) shown by a Movie File In TOP, so nothing runs in the background.
+
 ## [1.1.54] — 2026-09-24
 
 ### Added
