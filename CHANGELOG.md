@@ -11,6 +11,59 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
+## [1.1.56] — 2026-10-20
+
+### Added
+- **Claude Desktop.** The release carries `TDMCP.mcpb`, a Desktop extension
+  that connects Claude Desktop to TouchDesigner. Drag it onto **Settings →
+  Extensions** and TouchDesigner's tools appear in Desktop; no Node, config
+  file or terminal on your side, and the connection is fixed to loopback.
+  The skills come as a plugin upload, `TDMCP-Skills-1.4.1.zip`, from
+  **Settings → Plugins → Add → Upload a plugin**.
+- **Storage page on the component.** Shows exactly what TDMCP writes on this
+  machine and where: the state folder, this port's registrations file, the
+  logs folder and this port's capture cache. **Open Folder** reveals the
+  folder; **Clear Registrations**, **Clear Logs** and **Clear Cache** empty
+  each one. Clearing registrations ends every session: clients reconnect and
+  consent again.
+
+### Fixed
+- **`save_project` under Increment Filename when Saving (#67).** An explicit
+  path is now written exactly where asked, a default save honours the
+  preference, and the response names the file TouchDesigner actually wrote. A
+  path that would replace a different existing file is refused unless
+  `overwrite` is true.
+- **Generated HTTPS certs cover `::1` (#62),** matching what a bare
+  `mkcert localhost` produces.
+- **`get_cook_performance` on a single operator (#64)** no longer raises.
+- **Skills follow `CLAUDE_CONFIG_DIR` and `CODEX_HOME` (#66)** when those
+  variables are set in TouchDesigner's environment.
+
+### Changed
+- **Ask for authentication ships on.** Every client goes through a consent
+  panel inside TouchDesigner before it gets control. Turn it off on the
+  component for a silent local setup.
+- **The consent dialog is a floating panel, not a modal dialog (#59).** The
+  server keeps answering while it is open, an unanswered request expires
+  after five minutes, and two requests from the same application (Claude
+  Desktop starts its extension twice) are answered with one click.
+- **Access tokens survive a restart, and consent is asked once per client per
+  session (#60).** The 24-hour token lifetime is real now: a TouchDesigner
+  restart no longer sends every client back through the consent panel.
+- **Runtime state moved out of the project folder (#68).** Registrations, the
+  event log and the capture cache live in one folder beside TouchDesigner's
+  own preferences: `%LOCALAPPDATA%\Derivative\TDMCP` on Windows,
+  `~/Library/Application Support/Derivative/TDMCP` on macOS. A `.tdmcp/`
+  folder left by 1.1.55 is imported once and never touched again. **Image
+  Cache Path** now ships blank, meaning that per-port cache.
+- **Deferred work keeps running while the timeline is paused.** The consent
+  countdown, image captures and follow animations count frames on the UI
+  clock, so pausing the project no longer freezes them.
+- **The browser page shown during authentication matches the consent panel.**
+- **The Desktop extension describes itself:** its page in Desktop lists every
+  tool, the setup steps, and the TDMCP version it belongs with.
+- **Requires TouchDesigner 2025.33230 or later.**
+
 ## [1.1.55] — 2026-09-27
 
 ### Changed

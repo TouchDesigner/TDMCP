@@ -79,7 +79,7 @@ Running `agy --print` needs an allow-list in `~/.gemini/antigravity-cli/settings
 { "permissions": { "allow": ["mcp(*)", "command(*)", "read_file(*)"] } }
 ```
 
-Headless also does not mount workspace skills. Install at user scope — see [Skills](../README.md#skills).
+Headless also does not mount workspace skills. Install at user scope — see [Skills](component.md#skills).
 
 ## HTTPS
 
@@ -153,7 +153,21 @@ Two things to expect. If authentication is on you must re-authenticate, because 
 
 ## Claude Desktop
 
-Claude Desktop's config file accepts only **stdio** servers, so TDMCP needs the `mcp-remote` stdio-to-HTTP bridge, fetched via `npx`. Node.js 18+ required.
+Claude Desktop runs local MCP servers over **stdio**, so TDMCP reaches it through a bridge. Two ways to get one.
+
+### Bundle (recommended)
+
+Download `TDMCP.mcpb` from the same [release](https://github.com/TouchDesigner/TDMCP/releases) as the `.tox`. In Claude Desktop open **Settings → Extensions** and drag the file onto that page. Desktop shows what it is about to install, with the name, version, publisher, documentation and privacy links, and its standard warning for an extension it has not verified. Click **Install**. The extension enables itself and connects immediately, with nothing to configure and no relaunch, provided TouchDesigner is already running with **Active** on.
+
+**Updating.** Drag the newer `TDMCP.mcpb` onto the same **Settings → Extensions** page; Desktop offers to update the installed extension in place, with no uninstall. It only does so for a different version: a bundle with the version already installed is silently ignored. Sideloaded extensions do not update on their own. The extension's description names its TDMCP version; use it with the `.tox` from the same release.
+
+The bundle carries its own copy of the `mcp-remote` bridge and runs on the Node.js inside Claude Desktop. Nothing to install, no config file. The host is fixed to `127.0.0.1`. The port defaults to 13316; if you changed **Port** on the component, set it under **Settings → Extensions → TouchDesigner → Configure**.
+
+**HTTP, HTTPS and authentication with the bundle.** The bundle talks plain HTTP on loopback, which nothing on the machine can intercept, so it needs no certificate and nothing from mkcert. Leave **Use HTTPS** off on the component: the bundle only speaks HTTP and goes silent if the server switches to TLS. **Ask for authentication** is on as shipped and works as it does for any client: the first connection opens a browser tab, TouchDesigner raises its consent panel under the mouse, and the bridge keeps its registration under `~/.mcp-auth`; the access token lives in the TDMCP state folder for 24 hours, so a TouchDesigner restart within that window reconnects without asking. To make the server forget the bridge, use **Clear Registrations** on the component's Storage page, delete the bridge's own cache (`~/.mcp-auth`, where it keeps the client id the server just forgot; the bridge does not re-register on its own, it keeps presenting the old id and is refused as `unknown_client_id`), then turn the extension off and on in Desktop.
+
+### Manual config
+
+For environments that cannot install extensions. Needs Node.js 18+ on your machine, since the bridge is fetched via `npx`.
 
 > **Add Custom Connector does not work for local servers.** Connector tool calls are dispatched by Anthropic's backend rather than by the Desktop app, so it cannot resolve a hostname that exists only on your machine. The connector appears to add, then lists zero tools. This is a platform limitation, not a TDMCP bug. Use the bridge below.
 
@@ -196,9 +210,15 @@ Fully quit and restart Claude Desktop after editing, not just close the window.
 
 **With authentication on**, the bridge registers itself, opens your browser, and TouchDesigner shows a consent popup. Click **Allow full control** and the bridge holds the token from there.
 
+### Tuning for Claude Desktop
+
+The component ships tuned for Claude Code, which reads files from disk. Desktop cannot, so a few settings work better changed.
+
+**Turn on Inline Images (base64)** on the **Tune** page. With it off, `view_operator` writes the capture to `cache/<port>/` and returns only the file path. Claude Code opens that file; Desktop has no file access, so it never sees the image and falls back to reading pixel values with `inspect_values`. With Inline Images on, the PNG comes back inside the tool result and Desktop sees it directly. Each capture costs more context than a path, so keep `view_operator` at its default `tiny` size unless detail matters.
+
 ### Claude Desktop troubleshooting
 
-**Server disconnects immediately.** Check the log — `~/Library/Logs/Claude/mcp-server-touchdesigner.log` on macOS, `%APPDATA%\Claude\logs\` on Windows. On Windows a spawn error means Desktop could not launch `npx` directly, because it is a `.cmd` shim. Wrap it:
+**Server disconnects immediately.** Check the log — `~/Library/Logs/Claude/mcp-server-touchdesigner.log` on macOS, `%LOCALAPPDATA%\Claude\logs\` on Windows (older installs wrote to `%APPDATA%\Claude\logs\`; **Settings → Developer** opens the right folder either way). The file is named after the server: `mcp-server-TouchDesigner.log` for the bundle, `mcp-server-touchdesigner.log` for a manual config. On Windows a spawn error means Desktop could not launch `npx` directly, because it is a `.cmd` shim. Wrap it:
 
 ```json
 "command": "cmd", "args": ["/c", "npx", "-y", "mcp-remote", "http://127.0.0.1:13316/mcp", "--allow-http"]
@@ -225,23 +245,29 @@ Both components share the same operator tree, so changes made through one are im
 
 ## OAuth
 
-Optional, enabled by **Ask for authentication**. Authorization Code flow with PKCE (RFC 7636), Dynamic Client Registration (RFC 7591), Authorization Server Metadata (RFC 8414) and Protected Resource Metadata (RFC 9728). Clients discover endpoints via `/.well-known/oauth-authorization-server`; the server also serves `/register`, `/authorize`, `/token`, `/revoke` and `/authorize/status`.
+On by default, controlled by **Ask for authentication**. Authorization Code flow with PKCE (RFC 7636), Dynamic Client Registration (RFC 7591), Authorization Server Metadata (RFC 8414) and Protected Resource Metadata (RFC 9728). Clients discover endpoints via `/.well-known/oauth-authorization-server`; the server also serves `/register`, `/authorize`, `/token`, `/revoke` and `/authorize/status`.
 
 ### Where state lives
 
 | State | Location | Survives a TD restart? |
 | --- | --- | --- |
-| Access tokens, authorization codes | In memory | **No**, by design |
-| Client registrations | `.tdmcp/oauth_clients.json`, beside the project | Yes |
+| Access tokens | `oauth_tokens_<port>.json` in the TDMCP state folder, user-only permissions | Yes, for their 24-hour lifetime |
+| Authorization codes, PKCE material, remembered consent | In memory | **No**, by design |
+| Client registrations | `oauth_clients_<port>.json` in the TDMCP state folder | Yes |
+| Image captures (`view_operator`, Inline Images off) | `cache/<port>/` in the TDMCP state folder | No, cleared at server start |
 | The client's copy of its `client_id` | The client's own config | Yes |
 
-Authorization codes last 300 seconds, access tokens 24 hours. At most 100 client registrations are kept, with LRU eviction that skips any registration backing a live token; if every slot is live, a new registration gets `503`.
+Authorization codes last 300 seconds, access tokens 24 hours. At most 100 client registrations are kept, with LRU eviction that skips any registration backing a live token; because tokens persist, that guard holds from the first second after a restart too. If every slot is live, a new registration gets `503`.
 
-`.tdmcp/` is a gitignored sidecar, never part of the `.tox` export, so saving the `.toe` has no effect on it. The path follows `project.folder`, so a Save As carries registrations to the new location.
+**The consent panel is non-modal.** It is a floating window owned by the component (`/TDMCP/dialog`), with the request's facts, a countdown, and two buttons: **Deny** and **Allow full control**. Because it is not a modal dialog, the server keeps serving every other client while it is open, and a request nobody answers expires after five minutes instead of hanging the server (#59). Requests from the same application that are waiting at the same time, meaning the same client or the same name and callback registered separately, are shown as one entry and answered with one click; Claude Desktop starts an extension twice when it connects, so this is what keeps that to a single Allow. If the panel cannot open, the component falls back to TouchDesigner's modal message box.
+
+**Consent is remembered per client for the session.** The panel appears the first time a client asks; later authorizations from the same registration are approved without it, logged as `consent_reuse`, until TouchDesigner restarts or **Clear Registrations** runs. A Deny forgets the client.
+
+The TDMCP state folder sits beside TouchDesigner's own preferences folder, so it survives TD upgrades and is never cloud-synced: `%LOCALAPPDATA%\Derivative\TDMCP` on Windows, `~/Library/Application Support/Derivative/TDMCP` on macOS. It is keyed by port because clients identify a server by its URL: two components on different ports keep separate files, and every project served on one port shares them (registration is identity; the consent popup still gates every token). Changing **Port** starts a fresh file for the new port. Nothing is written beside the project, so an unsaved project no longer leaves a hidden `.tdmcp/` where TouchDesigner was launched from. A `.tdmcp/oauth_clients.json` left beside a project by 1.1.55 is imported once on the next start, logged as `store_import`, and then ignored; delete the old folder when convenient. The component's **Storage** page shows the resolved paths for the running port, opens the folder, and clears the registrations, logs or cache.
 
 ### Event log
 
-`.tdmcp/oauth_events.log` records `store_load`, `session_reset`, `client_register`, `client_evict`, `authorize_reject`, `consent_allow`, `consent_deny`, `token_issue`, `token_reject` and `auth_rejected`. It rotates once at 256 KB and contains no secret material: tokens, codes and PKCE verifiers never reach it. `client_id` is logged in full, since it is public under PKCE and correlating it with the client's own log is the point.
+`logs/tdmcp_<port>.log` in the state folder records `store_import`, `store_load`, `store_clear`, `token_load`, `log_clear`, `session_reset`, `client_register`, `client_evict`, `authorize_reject`, `consent_allow`, `consent_reuse`, `consent_deny`, `token_issue`, `token_reject` and `auth_rejected`. It rotates once at 256 KB and contains no secret material: tokens, codes and PKCE verifiers never reach it. `client_id` is logged in full, since it is public under PKCE and correlating it with the client's own log is the point.
 
 ### Editing the server with a client connected
 
