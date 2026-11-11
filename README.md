@@ -26,8 +26,15 @@ Requires **TouchDesigner 2025.33230 or newer**.
 1. Download `TDMCP.tox` from [Releases](https://github.com/TouchDesigner/TDMCP/releases)
    and drag it into the root of your project.
 2. Turn on **Active** on the component's MCP page.
-3. Connect your agent. Pick your client in **Install For**, copy **Add MCP**,
-   and run it in your project directory. Then pulse **Install Skills**.
+3. Connect your agent. On the component's MCP page, pick your client under
+   **Install For** (Claude Code, Codex, Cursor, Antigravity or OpenCode).
+   **Add MCP** below it is a read-only parameter holding the command for that
+   client: click in the field, select the whole string and copy it. Open a
+   terminal in your project folder, the one you run the agent's CLI from,
+   paste the command on the command line and press Enter. That registers the
+   server with the agent, and the next session you start there lists
+   TouchDesigner's tools. Then pulse **Install Skills** on the same page.
+   Claude Desktop needs no command: install the plugin instead (below).
 
 For Claude Code, **Add MCP** gives you:
 
