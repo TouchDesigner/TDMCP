@@ -1,0 +1,22 @@
+{
+  "name": "touchdesigner",
+  "displayName": "TouchDesigner",
+  "version": "1.1.57",
+  "description": "Collaborate with Claude to build and refine TouchDesigner projects.",
+  "author": {
+    "name": "Derivative",
+    "url": "https://derivative.ca"
+  },
+  "homepage": "https://github.com/TouchDesigner/TDMCP",
+  "repository": "https://github.com/TouchDesigner/TDMCP",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "keywords": [
+    "touchdesigner",
+    "derivative",
+    "tdmcp",
+    "creative-coding",
+    "generative"
+  ],
+  "icon": "./icon.png",
+  "mcpServers": "./TDMCP.mcpb"
+}

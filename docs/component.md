@@ -12,18 +12,18 @@ Six pages: **MCP**, **Skills**, **Tune**, **Docs**, **Storage**, **About**.
 | Parameter | Notes |
 | --- | --- |
 | **Active** | Start and stop the server |
-| **Port** | Default `13316` |
+| **Port** | Default `13316`. Changing it restarts the server on the new port, ends every session on the old one, and loads the registrations and tokens kept for the new port; the Storage page follows |
 | **Server Name** | The name clients register the server under. Default `touchdesigner` |
 | **Server Address Scope** | `Localhost only (127.0.0.1)` (default) or `All interfaces (LAN/remote)`. See [Security](security.md#security) |
 | **Use HTTPS** | Optional TLS. See [HTTPS](setup-advanced.md#https) |
 | **Certs Folder** | Optional override for where the cert lives |
 | **Ask for authentication** | On by default. OAuth 2.1 with a consent panel inside TouchDesigner. See [Security](security.md#security) |
-| **Auto-accept deletion** | Skip the confirmation dialog on `delete_operator`. That is the only tool that raises one |
-| **Install For** | Which agent to set up. Default Claude Code |
-| **Install Scope** | Rebuilt per agent to the scopes it supports. Default `Local — this folder, private to you` |
+| **Auto-accept deletion** | Skip the confirmation dialog on `delete_operator`. That is the only tool that raises one, and it is modal: the server answers nothing while it is open. Turn this on for unattended installs. See [Security](security.md#security) |
+| **Install For** | Which agent to set up. Default Claude Code. Pick **Claude Desktop (Code tab)** for the Code tab inside Claude Desktop, which needs the bridge form of the command (see [Claude Desktop Code tab](setup-advanced.md#claude-desktop-code-tab)) |
+| **Install Scope** | Rebuilt per agent to the scopes it supports. Default `Local — this folder, private to you`. Project and local scope install at the **project root**: the nearest folder above the `.toe` that holds `.git`, or the `.toe` folder when there is none. Override it with **Project Root** on the Skills page |
 | **Add MCP** / **Remove MCP** | Read-only, generated for the current selection |
 | **Install Skills** | Install for the current Install For × Install Scope |
-| **Skills Status** | Read-only. What is installed for that selection; the tooltip lists resolved directories |
+| **Skills Status** | Read-only. What is installed for that selection, and for project or local scope the folder it resolved to; the tooltip lists resolved directories. Warns when the selected agent loads `td-*` skills from more than one place, such as a project copy over the user install or a claude.ai account plugin; see [Skills listed twice](troubleshooting.md#skills-listed-twice-or-the-agent-follows-old-instructions) |
 
 **Running two TouchDesigner instances at once?** Give each component a different **Server Name**. Clients resolve one entry per name, so two servers both called `touchdesigner` means one silently shadows the other and your agent drives the wrong project.
 
@@ -34,8 +34,9 @@ Six pages: **MCP**, **Skills**, **Tune**, **Docs**, **Storage**, **About**.
 | **System prompt DAT** | The DAT served to clients as MCP `instructions`. Defaults to `./SystemPrompt` |
 | **Skills Source (blank = latest release)** | Blank downloads the latest published release. A path is used only when it resolves to a TDMCPSkills checkout; a stale path falls back to the release with a note |
 | **Skills Repo or Archive URL** / **Skills Version** | Override the repo (`owner/name`, a direct archive URL, or `file://`) and pin a release tag. Blank means `TouchDesigner/TDMCPSkills` at its latest release |
+| **Project Root (blank = git root)** | Where project- and local-scope skills go: the folder your agent starts in. Blank finds the nearest `.git` above the `.toe`. A relative path resolves against the `.toe` folder |
 | **Host Override DAT** | A DAT of JSON host records layered over the shipped registry. See [Adding an agent](setup-advanced.md#adding-an-agent) |
-| **Installed Locations** | Read-only. Every registry destination currently holding skills. One directory serving two clients is listed once, with both named |
+| **Installed Locations** | Read-only. Every registry destination currently holding skills. One directory serving two clients is listed once, with both named. An install beside the `.toe` when the project root is elsewhere (where releases before 1.1.57 put project skills) shows as `beside .toe, not loaded`; **Uninstall Scope: All agents — this project** removes it. Claude account plugins that ship `td-*` skills are listed as `account plugin, not managed`: shown so you know they load, never removed by the component |
 | **Uninstall Scope** | `Current selection only (MCP page)` · `All agents — this project` · `All agents — global` · `All agents — everywhere` |
 | **Uninstall Skills** | Remove the skills this component installed, per the manifests it wrote |
 
@@ -56,7 +57,9 @@ Everything TDMCP keeps on your machine lives in one folder beside TouchDesigner'
 | Parameter | Notes |
 | --- | --- |
 | **State Folder** / **Open Folder** | The folder itself. **Open Folder** reveals it in Explorer or Finder |
-| **Registrations** / **Clear Registrations** | `oauth_clients_<port>.json`: which clients have registered, as public ids and names, no secrets. Beside it, `oauth_tokens_<port>.json` holds their live access tokens. Clearing removes both and ends every session on the port; clients reconnect and consent again. Claude Desktop's bridge also needs its own cache cleared, see [Claude Desktop problems](troubleshooting.md#claude-desktop-problems) |
+| **Connected Clients** | Read-only. Clients that sent a request in the last 10 minutes, most recent first, with the name and version each reports; the Claude Desktop bundle shows as `via TDMCP.mcpb <version>`. Told apart by registration with **Ask for authentication** on, by User-Agent with it off. See [Several clients on one instance](setup-advanced.md#several-clients-on-one-instance) |
+| **Revoke Access** | Ends every session on the port but keeps the registrations: drops the access tokens and `oauth_tokens_<port>.json`, and forgets which clients you allowed. Each client signs in again on its next request and the consent panel asks again. The everyday way to cut off access; clients that cache their id, like the Claude Desktop bridge, recover without help. See [Revoke Access or Clear Registrations](setup-advanced.md#ending-access-revoke-access-or-clear-registrations) |
+| **Registrations** / **Clear Registrations** | `oauth_clients_<port>.json`: which clients have registered, as public ids and names, no secrets. Beside it, `oauth_tokens_<port>.json` holds their live access tokens. Clearing empties the registrations file, removes the token file and ends every session on the port; clients register and consent again. Claude Desktop's bridge also needs its own cache cleared, see [Claude Desktop problems](troubleshooting.md#claude-desktop-problems). To end sessions without forgetting the clients, use **Revoke Access**; the two are compared in [Revoke Access or Clear Registrations](setup-advanced.md#ending-access-revoke-access-or-clear-registrations) |
 | **Logs** / **Clear Logs** | `logs/tdmcp_<port>.log`, plus one rotated `.1`: authentication and session events, never tool payloads. Clearing removes every log file |
 | **Capture Cache** / **Clear Cache** | `cache/<port>/`: `view_operator` PNGs when Inline Images is off. Emptied automatically when the server starts |
 | **Status** | Read-only. What the last action did |

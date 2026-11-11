@@ -44,11 +44,12 @@ call round-tripped. Now try something real:
 
 > Create a noise TOP, blur it, and end the chain in a null.
 
-**Claude Desktop** has no command to run. Download `TDMCP.mcpb` from the same
-release, open **Settings → Extensions** and drag the file onto that page. For
-the skills, open **Settings → Plugins → Add → Upload a plugin** and drop in the
-TDMCP Skills plugin zip file. Then turn on **Inline Images** on the component's Tune
-page, so Claude can see what it builds. Details in
+**Claude Desktop** has no command to run. Download `Derivative-Official-TDMCP-Plugin.zip` from the
+same release, open **Customize → Plugins → Add → Upload plugin** and drop it
+in. It carries the TDMCP bridge and the skills, and Desktop runs the bridge
+for chat, Cowork and Code sessions on your computer, all of which load the
+skills. Then turn on **Inline Images** on the component's Tune page, so
+Claude can see what it builds. Details in
 [Claude Desktop](docs/setup-advanced.md#claude-desktop).
 
 ## Download
@@ -58,8 +59,8 @@ Every release carries the same three files.
 | File | What it is |
 |---|---|
 | **TDMCP.tox** | The component. This is the server. |
-| **TDMCP.mcpb** | The Claude Desktop extension. Other clients do not need it. |
-| **TDMCP-Skills-*.plugin** | The skills, packaged for Claude Desktop. Other clients get them from **Install Skills**. |
+| **Derivative-Official-TDMCP-Plugin.zip** | The bridge and the skills as one Claude plugin, for Claude Desktop. Other clients do not need it: they get the skills from **Install Skills**. |
+| **TDMCP.json** | The version and checksum of the `.tox`, which the About page's **Update** button verifies. Nothing to do with it by hand. |
 
 
 ## What you can do

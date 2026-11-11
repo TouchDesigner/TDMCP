@@ -11,6 +11,89 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
+## [1.1.57] — 2026-11-10
+
+### Added
+- **One Claude plugin, `Derivative-Official-TDMCP-Plugin.zip`,** replaces both
+  `TDMCP.mcpb` and the separate skills zip. It carries the bridge that
+  connects Claude Desktop to TouchDesigner and the 19 `td-*` skills (TDMCP
+  Skills 1.4.1), and Desktop runs the bridge for chat, Cowork and Code
+  sessions on your computer, all of which load the skills. Upload it under
+  **Customize → Plugins → Add → Upload plugin**; Desktop no longer has an
+  Extensions page. To update, upload the newer plugin over the old one and
+  start a new session, since a session keeps the bridge it started with.
+- **Install For: Claude Desktop (Code tab)** (#8, #4). Generates the
+  `mcp-remote` registration the Code tab needs, with `cmd /c npx` on Windows,
+  and installs skills to Claude Code's folders, since the Code tab is Claude
+  Code.
+- **Version reporting across component and bridge** (#9). `project_info`
+  reports `componentVersion` beside `serverVersion`, and `bridgeVersion` once
+  a Claude Desktop bridge connects; a mismatch adds a `versionWarnings` entry
+  and prints a textport warning.
+- **Revoke Access** on the Storage page. Ends every session on the port
+  without forgetting the clients: each one signs in again on its next
+  request and the consent panel asks again. Unlike **Clear Registrations**,
+  the Claude Desktop bridge recovers on its own, so this is the everyday way
+  to cut off access.
+- **Connected Clients** on the Storage page (#10). The clients that sent a
+  request in the last 10 minutes, most recent first, with the name and
+  version each reports.
+- **Duplicate skill copies are reported** (#6). Skills Status warns when the
+  selected agent loads `td-*` skills from more than one place for this
+  project, including a Claude account plugin, and the tooltip lists each copy
+  with its path and version. Nothing the component did not install is
+  removed.
+- **Project Root** on the Skills page (#7). Blank means the git root above
+  the `.toe`.
+- **Use HTTPS says what it breaks.** Flipping it prints the new server URL,
+  says clients registered with the old scheme must be re-registered, and
+  notes that the Desktop plugin's bridge speaks HTTP only. While it is on,
+  **Add MCP**'s tooltip gives `NODE_EXTRA_CA_CERTS` with the real root CA
+  path, and the Code tab command sets it for its bridge.
+
+### Security
+- **Tools cannot change the server's own component.** Every mutating tool
+  refuses a target that is the component or anything inside it, with a
+  `self_path` error, however the path is written. Before, `set_parameters`
+  could turn **Ask for authentication** off. Read-only tools still see the
+  component. `execute_code` is not fenced and is documented as such.
+
+### Changed
+- **`project_info` names the running build and the save build apart** (#12).
+  `tdBuild`/`tdVersion` are listed first; `saveBuild`/`saveVersion` are now
+  `projectSaveBuild`/`projectSaveVersion`, and `buildMismatch: true` appears
+  when the two differ.
+- **Project-scope skills install at the project root** (#7): the nearest
+  folder above the `.toe` that holds `.git`, else the `.toe` folder, or
+  **Project Root** when set. An older install beside the `.toe` shows in
+  Installed Locations as `beside .toe, not loaded`, and the project-wide
+  Uninstall removes it.
+- **The BETA badge on the logo has no box.**
+
+### Fixed
+- **Changing Port loads that port's registrations.** Before, every client
+  registered on the new port was refused as `unknown_client_id` until
+  TouchDesigner restarted.
+- **Clear Registrations stays cleared across a restart** on a project an
+  older build had used.
+- **The stale-client page names the Desktop fix** after Clear Registrations:
+  delete `~/.mcp-auth`, then turn the plugin off and on.
+- **The bridge bundle contains `LICENSE.md`.**
+
+### Documentation
+- **HTTPS first run.** The HTTPS section opens by saying it is not needed on
+  localhost; `Connecting over HTTPS` explains why Node-based clients refuse a
+  certificate the browser accepts and gives `NODE_EXTRA_CA_CERTS` for each
+  platform; troubleshooting has `UNKNOWN_CERTIFICATE_VERIFICATION_ERROR` and
+  `Recovering from Use HTTPS`.
+- **The delete confirmation stays modal, and the docs say so.** Turn on
+  **Auto-accept deletion** for unattended installs.
+- **Claude Desktop Code tab** (#4): the registration that signs in there.
+- **Disabling the plugin in Claude Desktop does not stop a running bridge**
+  until Desktop refreshes its plugin state or restarts. Use **Revoke Access**
+  to cut access now.
+- **`mcp-remote` pinned to `0.15.1`** in the manual config examples.
+
 ## [1.1.56] — 2026-10-20
 
 ### Added
