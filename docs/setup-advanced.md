@@ -228,7 +228,7 @@ For LAN access or environments that forbid `--allow-http`. Complete [HTTPS](#htt
 
 Fully quit and restart Claude Desktop after editing, not just close the window.
 
-**With authentication on**, the bridge registers itself, opens your browser, and TouchDesigner shows a consent popup. Click **Allow full control** and the bridge holds the token from there.
+**With authentication on**, the bridge registers itself, opens your browser, and TouchDesigner shows a consent panel naming the bridge. If you allow it, the bridge holds the token from there.
 
 ### Claude Desktop Code tab
 

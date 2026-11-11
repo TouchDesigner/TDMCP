@@ -16,7 +16,8 @@ run here, and all three load the skills.
    plugin**. Accept the prompt that it runs on your computer.
 3. Start a conversation, or a Cowork or Code session, on this computer. On
    the first connection a browser tab opens and TouchDesigner shows a consent
-   panel; click **Allow full control**.
+   panel naming the client that is asking. Nothing connects until you decide
+   there.
 
 The plugin's version is the TDMCP version. Use it with the `TDMCP.tox` from
 the same release. The bridge talks to TouchDesigner on `127.0.0.1` only, on

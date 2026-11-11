@@ -103,8 +103,8 @@ The server exposes `execute_code`, which runs Python inside TouchDesigner.
 Treat a connection to it as you would a shell on your machine.
 
 - **Authentication is on by default.** The first time a client connects,
-  TouchDesigner shows a consent panel beside your mouse. Nothing gets control
-  until you click **Allow full control**.
+  TouchDesigner shows a consent panel beside your mouse, naming the client
+  that is asking. Nothing gets control until you allow it there.
 - **Localhost only, by default.** Requests from other machines are refused
   before anything runs. Opening the server to a network requires HTTPS and
   authentication together.
