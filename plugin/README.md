@@ -12,7 +12,7 @@ run here, and all three load the skills.
 1. Drop `TDMCP.tox` into the root of your TouchDesigner project and turn on
    **Active**.
 2. Add **TouchDesigner** from the plugin directory in Claude, or upload
-   `Derivative-Official-TDMCP-Plugin.zip` from the release with **Upload
+   `Derivative-TDMCP.plugin` from the release with **Upload
    plugin**. Accept the prompt that it runs on your computer.
 3. Start a conversation, or a Cowork or Code session, on this computer. On
    the first connection a browser tab opens and TouchDesigner shows a consent
