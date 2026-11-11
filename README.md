@@ -52,7 +52,7 @@ call round-tripped. Now try something real:
 
 > Create a noise TOP, blur it, and end the chain in a null.
 
-**Claude Desktop** has no command to run. Download `Derivative-Official-TDMCP-Plugin.zip` from the
+**Claude Desktop** has no command to run. Download `Derivative-TDMCP.plugin` from the
 same release, open **Customize → Plugins → Add → Upload plugin** and drop it
 in. It carries the TDMCP bridge and the skills, and Desktop runs the bridge
 for chat, Cowork and Code sessions on your computer, all of which load the
@@ -67,7 +67,7 @@ Every release carries the same three files.
 | File | What it is |
 |---|---|
 | **TDMCP.tox** | The component. This is the server. |
-| **Derivative-Official-TDMCP-Plugin.zip** | The bridge and the skills as one Claude plugin, for Claude Desktop. Other clients do not need it: they get the skills from **Install Skills**. |
+| **Derivative-TDMCP.plugin** | The bridge and the skills as one Claude plugin, for Claude Desktop. Other clients do not need it: they get the skills from **Install Skills**. |
 | **TDMCP.json** | The version and checksum of the `.tox`, which the About page's **Update** button verifies. Nothing to do with it by hand. |
 
 

@@ -14,7 +14,7 @@ internal builds and were never published.
 ## [1.1.57] — 2026-11-10
 
 ### Added
-- **One Claude plugin, `Derivative-Official-TDMCP-Plugin.zip`,** replaces both
+- **One Claude plugin, `Derivative-TDMCP.plugin`,** replaces both
   `TDMCP.mcpb` and the separate skills zip. It carries the bridge that
   connects Claude Desktop to TouchDesigner and the 19 `td-*` skills (TDMCP
   Skills 1.4.1), and Desktop runs the bridge for chat, Cowork and Code
