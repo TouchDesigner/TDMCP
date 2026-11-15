@@ -55,7 +55,7 @@ Code lives in the terminal; Claude Desktop is the app. Never used a terminal?
 Start with Claude Desktop.
 
 Requires **TouchDesigner 2025.33230 or newer**, and for the steps below, an
-agent CLI already installed.
+agent CLI that is already installed.
 
 1. Download `TDMCP.tox` from [Releases](https://github.com/TouchDesigner/TDMCP/releases)
    and drag it into your project.
