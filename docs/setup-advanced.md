@@ -171,116 +171,26 @@ A registration cannot carry it for Claude Code connecting directly: Claude Code 
 
 ## Claude Desktop
 
-Claude Desktop runs local MCP servers over **stdio**, so TDMCP reaches it through a bridge, `TDMCP.mcpb`, which the release ships inside a Claude plugin, `Derivative-TDMCP.plugin`, together with the `td-*` skills. One install covers chat, Cowork and Code sessions on your computer, and the skills load in all three with nothing to install. It does not appear under **Connectors**: that page lists remote servers, which TDMCP is not.
-
-### Install the plugin
-
-Download `Derivative-TDMCP.plugin` from the same [release](https://github.com/TouchDesigner/TDMCP/releases) as the `.tox`. In Claude Desktop open **Customize → Plugins → Add → Upload plugin** and drop the file in. The preview shows the plugin's name, `touchdesigner`, and its description; click **Upload**, then accept the prompt that the plugin includes a local MCP server, `tdmcp`, which runs on your computer. It appears under **Your plugins** as **TouchDesigner**, with `TDMCP.mcpb` on its **Connectors** tab marked **Runs in each session**. Any chat, Cowork or Code session started after that runs the bridge, provided TouchDesigner is running with **Active** on; a session's connector list shows the server as **Tdmcp**.
-
-The plugin uses the bundle's default port, 13316, and Desktop offers no settings for a plugin-bundled server. A component whose **Port** was changed cannot be reached from Desktop: put it back, or use the [manual config](#manual-config) below.
-
-**Updating.** Upload the newer `Derivative-TDMCP.plugin` the same way; Desktop replaces the installed plugin in place and the plugins page shows the new version. A session that is already open keeps the bridge it started with, so start a new session to pick up the new one. The plugin's version is its TDMCP version; use it with the `.tox` from the same release. Plugins are saved to your account, so the same upload also reaches Claude Code signed in as you, as a synced plugin.
-
-The bundle carries its own copy of the `mcp-remote` bridge and runs on the Node.js inside Claude Desktop. Nothing to install, no config file. The host is fixed to `127.0.0.1`.
-
-**HTTP, HTTPS and authentication with the bundle.** The bundle talks plain HTTP on loopback, which nothing on the machine can intercept, so it needs no certificate and nothing from mkcert. Leave **Use HTTPS** off on the component: the bundle only speaks HTTP and goes silent if the server switches to TLS. **Ask for authentication** is on as shipped and works as it does for any client: the first connection opens a browser tab, TouchDesigner raises its consent panel under the mouse, and the bridge keeps its registration under `~/.mcp-auth`; the access token lives in the TDMCP state folder for 24 hours, so a TouchDesigner restart within that window reconnects without asking. To make the server forget the bridge, use **Clear Registrations** on the component's Storage page, delete the bridge's own cache (`~/.mcp-auth`, where it keeps the client id the server just forgot; the bridge does not re-register on its own, it keeps presenting the old id and is refused as `unknown_client_id`), then turn the plugin off and on in Desktop.
-
-### Manual config
-
-For environments that cannot install plugins, or a component on a port other than 13316. Needs Node.js 18+ on your machine, since the bridge is fetched via `npx`.
-
-> **Add Custom Connector does not work for local servers.** Connector tool calls are dispatched by Anthropic's backend rather than by the Desktop app, so it cannot resolve a hostname that exists only on your machine. The connector appears to add, then lists zero tools. This is a platform limitation, not a TDMCP bug. Use the bridge below.
-
-Open the config via **Settings → Developer → Edit Config**, which opens the right file every time. By path it is `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows. If the file already has content, add the `mcpServers` key alongside rather than replacing it.
-
-### Plain HTTP (recommended for localhost)
-
-No certs, no HTTPS toggle. `--allow-http` is sanctioned for networks where traffic cannot be intercepted, and loopback qualifies by definition.
-
-```json
-{
-  "mcpServers": {
-    "touchdesigner": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote@0.15.1", "http://127.0.0.1:13316/mcp", "--allow-http"]
-    }
-  }
-}
-```
-
-### HTTPS
-
-For LAN access or environments that forbid `--allow-http`. Complete [HTTPS](#https) first, then point the bridge at `https://` and hand Node the mkcert root CA:
-
-```json
-{
-  "mcpServers": {
-    "touchdesigner": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote@0.15.1", "https://127.0.0.1:13316/mcp"],
-      "env": { "NODE_EXTRA_CA_CERTS": "/path/to/mkcert-ca/rootCA.pem" }
-    }
-  }
-}
-```
-
-`mkcert -CAROOT` prints the directory holding `rootCA.pem`.
-
-Fully quit and restart Claude Desktop after editing, not just close the window.
-
-**With authentication on**, the bridge registers itself, opens your browser, and TouchDesigner shows a consent panel naming the bridge. If you allow it, the bridge holds the token from there.
-
-### Claude Desktop Code tab
-
-The Code tab runs Claude Code inside Desktop, and it reads the same registrations as the `claude` CLI. The plain `claude mcp add --transport http …` command that **Install For: Claude Code** generates registers fine there but cannot sign in: the Code tab's HTTP client refuses any sign-in page that is not `https`, and fails with `Refused to open sign-in URL for touchdesigner: must be https`. The terminal CLI is not affected.
-
-Register through the `mcp-remote` bridge instead, the same one the bundle uses. It opens the sign-in page itself, so the consent panel appears and the connection completes. **Install For: Claude Desktop (Code tab)** generates this command for your platform, port and scope; by hand, run it from the project folder:
-
-```bash
-# macOS / Linux
-claude mcp add --scope local touchdesigner -- npx -y mcp-remote@0.15.1 http://127.0.0.1:13316/mcp --allow-http
-
-# Windows (npx is a .cmd shim, so wrap it)
-claude mcp add --scope local touchdesigner -- cmd /c npx -y mcp-remote@0.15.1 http://127.0.0.1:13316/mcp --allow-http
-```
-
-Needs Node.js 18+. `--allow-http` is safe here for the reason given under [Plain HTTP](#plain-http-recommended-for-localhost): the URL is loopback. Never use it with any other host. The version is pinned so `npx` runs the same `mcp-remote` the bundle ships instead of whatever is newest. If you already added the plain HTTP registration, remove it first with `claude mcp remove touchdesigner`.
-
-### Tuning for Claude Desktop
-
-The component ships tuned for Claude Code, which reads files from disk. Desktop cannot, so a few settings work better changed.
-
-**Turn on Inline Images (base64)** on the **Tune** page. With it off, `view_operator` writes the capture to `cache/<port>/` and returns only the file path. Claude Code opens that file; Desktop has no file access, so it never sees the image and falls back to reading pixel values with `inspect_values`. With Inline Images on, the PNG comes back inside the tool result and Desktop sees it directly. Each capture costs more context than a path, so keep `view_operator` at its default `tiny` size unless detail matters.
-
-### Claude Desktop troubleshooting
-
-**Server disconnects immediately.** Check the log — `~/Library/Logs/Claude/mcp-server-touchdesigner.log` on macOS, `%LOCALAPPDATA%\Claude\logs\` on Windows (older installs wrote to `%APPDATA%\Claude\logs\`; **Settings → Developer** opens the right folder either way). The file is named after the server: `mcp-server-TouchDesigner.log` for the bundle, `mcp-server-touchdesigner.log` for a manual config. On Windows a spawn error means Desktop could not launch `npx` directly, because it is a `.cmd` shim. Wrap it:
-
-```json
-"command": "cmd", "args": ["/c", "npx", "-y", "mcp-remote@0.15.1", "http://127.0.0.1:13316/mcp", "--allow-http"]
-```
-
-**`UNABLE_TO_VERIFY_LEAF_CERTIFICATE`.** HTTPS only. Node does not trust the mkcert CA; check `NODE_EXTRA_CA_CERTS` points at the right `rootCA.pem`, or switch to plain HTTP.
-
-**`curl` fails on Windows but the client works.** `SEC_E_UNTRUSTED_ROOT` and `CRYPT_E_NO_REVOCATION_CHECK` are a schannel quirk: it demands a revocation endpoint mkcert certs do not publish. Not a real trust failure. Verify with `Invoke-RestMethod` or `curl --ssl-revoke-best-effort`.
+Everything about Claude Desktop, the plugin, Cowork, the Code tab and a manual
+bridge config is on its own page: [Claude Desktop](claude-desktop.md).
 
 ## Several clients on one instance
 
-It is common to have Claude Desktop (through `TDMCP.mcpb`) and Claude Code, or another agent, connected to the same TouchDesigner at once. That works, and needs no extra setup: each client keeps its own registration, so both can be called `touchdesigner`.
+It is common to have Claude Desktop (through `tdmcp.mcpb`) and Claude Code, or another agent, connected to the same TouchDesigner at once. That works, and needs no extra setup: each client keeps its own registration, so both can be called `touchdesigner`.
 
 **What they share:** the TouchDesigner session itself. Both agents see and change the same network, the same parameters and the same undo history. Neither knows the other is there.
 
 **What they do not share:**
 
 - **Sign-in.** Each client registers and is allowed separately; the consent panel appears once for each.
-- **Skills.** Each client reads its own skills folders. Claude Code and the Desktop Code tab share Claude Code's folders; Claude Desktop chat loads skills only from plugins, which is why the TDMCP plugin carries them. A plugin on the account also syncs to Claude Code, so a Claude Code user with the plugin needs no **Install Skills**. **Skills Status** warns if one client loads two copies.
+- **Skills.** Each client reads its own skills folders. Claude Code and the Desktop Code tab share Claude Code's folders; Claude Desktop Cowork loads skills only from plugins, which is why the TDMCP plugin carries them. A plugin on the account also syncs to Claude Code, so a Claude Code user with the plugin needs no **Install Skills**. **Skills Status** warns if one client loads two copies.
 - **Conversation.** Each agent has only its own context, and does not see what the other just built.
 
 **The risk is two agents editing the same thing.** One agent can rename, rewire or delete what the other is working on, and each will report success for its own step. Keep them apart:
 
 - Give each agent its own COMP to work in, and say so in your prompt.
 - Or let one agent build while the other only reads: reviewing, inspecting values, viewing operators.
-- Watch **Connected Clients** on the component's Storage page. It lists every client that sent a request in the last 10 minutes, with the name and version it reports, and shows the Desktop bundle as `via TDMCP.mcpb <version>`.
+- Watch **Connected Clients** on the component's Storage page. It lists every client that sent a request in the last 10 minutes, with the name and version it reports, and shows the Desktop bundle as `via tdmcp.mcpb <version>`.
 - To stop all of them at once, press **Revoke Access** on the same page. Each must sign in and be allowed again.
 
 **Separate Server Names or ports are for separate TouchDesigner instances, not separate clients.** Two clients on one instance use the same port and the same name. Two instances need a different **Port** and **Server Name** each, as below.
@@ -311,12 +221,12 @@ On by default, controlled by **Ask for authentication**. Authorization Code flow
 | Access tokens | `oauth_tokens_<port>.json` in the TDMCP state folder, user-only permissions | Yes, for their 24-hour lifetime |
 | Authorization codes, PKCE material, remembered consent | In memory | **No**, by design |
 | Client registrations | `oauth_clients_<port>.json` in the TDMCP state folder | Yes |
-| Image captures (`view_operator`, Inline Images off) | `cache/<port>/` in the TDMCP state folder | No, cleared at server start |
+| Image captures (`view_operator`, returned as a path) | `cache/<port>/` in the TDMCP state folder | No, cleared at server start |
 | The client's copy of its `client_id` | The client's own config | Yes |
 
 Authorization codes last 300 seconds, access tokens 24 hours. At most 100 client registrations are kept, with LRU eviction that skips any registration backing a live token; because tokens persist, that guard holds from the first second after a restart too. If every slot is live, a new registration gets `503`.
 
-**The consent panel is non-modal.** It is a floating window owned by the component (`/TDMCP/dialog`), with the request's facts, a countdown, and two buttons: **Deny** and **Allow full control**. Because it is not a modal dialog, the server keeps serving every other client while it is open, and a request nobody answers expires after five minutes instead of hanging the server (#59). Requests from the same application that are waiting at the same time, meaning the same client or the same name and callback registered separately, are shown as one entry and answered with one click; Claude Desktop starts the plugin's server twice when it connects, so this is what keeps that to a single Allow. If the panel cannot open, the component falls back to TouchDesigner's modal message box.
+**The consent panel is non-modal.** It is a floating window owned by the component (`/tdmcp/dialog`), with the request's facts, a countdown, and two buttons: **Deny** and **Allow full control**. Because it is not a modal dialog, the server keeps serving every other client while it is open, and a request nobody answers expires after five minutes instead of hanging the server (#59). Requests from the same application that are waiting at the same time, meaning the same client or the same name and callback registered separately, are shown as one entry and answered with one click; Claude Desktop starts the plugin's server twice when it connects, so this is what keeps that to a single Allow. If the panel cannot open, the component falls back to TouchDesigner's modal message box.
 
 **Consent is remembered per client for the session.** The panel appears the first time a client asks; later authorizations from the same registration are approved without it, logged as `consent_reuse`, until TouchDesigner restarts, **Revoke Access** or **Clear Registrations** runs. A Deny forgets the client.
 
@@ -334,7 +244,7 @@ Both buttons are on the component's **Storage** page, and both end every session
 | Client registrations and `oauth_clients_<port>.json` | **Kept** | **Removed**; the file stays, emptied |
 | What a connected client does next | Its next request is refused; it signs in again under its existing client id and the consent panel asks you again | Its next request is refused, and it must register as a new client, then sign in, and the consent panel asks you again |
 | Claude Code and other HTTP clients | Sign in again on their next request | Must register again; if one keeps failing, reconnect it (`/mcp` in Claude Code) |
-| Claude Desktop bridge (`TDMCP.mcpb`, `mcp-remote`) | Signs in again on its next request, under the client id it cached | **Stays refused** as `unknown_client_id`: it caches its client id in `~/.mcp-auth` and keeps presenting it. Delete that folder and turn the plugin off and on |
+| Claude Desktop bridge (`tdmcp.mcpb`, `mcp-remote`) | Signs in again on its next request, under the client id it cached | **Stays refused** as `unknown_client_id`: it caches its client id in `~/.mcp-auth` and keeps presenting it. Delete that folder and turn the plugin off and on |
 | Logged as | `access_revoke tokens=<n> clients=<n>` | `store_clear clients=<n>` |
 
 **Use Revoke Access** to cut off every connected agent: after you stop working, when you are not sure what is connected, or before handing the machine to someone else. Nothing reconnects without you clicking **Allow** in the consent panel again, and nothing needs repair afterwards.
@@ -345,11 +255,21 @@ Neither turns authentication off or blocks a client from asking again; they end 
 
 ### Event log
 
-`logs/tdmcp_<port>.log` in the state folder records `store_import`, `store_load`, `store_clear`, `access_revoke`, `token_load`, `log_clear`, `session_reset`, `client_register`, `client_evict`, `authorize_reject`, `consent_allow`, `consent_reuse`, `consent_deny`, `token_issue`, `token_reject` and `auth_rejected`. It rotates once at 256 KB and contains no secret material: tokens, codes and PKCE verifiers never reach it. `client_id` is logged in full, since it is public under PKCE and correlating it with the client's own log is the point.
+`logs/tdmcp_<port>.log` in the state folder is the record to send with a bug report. The textport shows only what needs you: one line when the server starts listening, with its URL, and warnings, setup problems and errors. Routine activity, such as sign-ins, starts and stops, and refused requests (at most once a minute for each kind), goes to the console: the console window on Windows, or the terminal TouchDesigner was started from. Both are gone when TouchDesigner closes; the log is not. It records:
+
+| Group | Events |
+|---|---|
+| Server | `server_start` (version, TouchDesigner build, scheme, port, address scope, authentication on or off), `server_stop`, `server_blocked`, `session_reset`, `https_cert` |
+| Store | `store_import`, `store_load`, `store_clear`, `token_load`, `log_clear`, `access_revoke` |
+| Sign-in | `client_register`, `client_evict`, `authorize_reject`, `consent_shown`, `consent_allow`, `consent_reuse`, `consent_deny`, `consent_expired`, `consent_cap`, `consent_panel_error`, `token_issue`, `token_reject` |
+| Refusals | `auth_rejected`, `request_refused` (non-local client, oversized body, cross-origin), `rate_limited`, `self_path_refused` (a tool aimed at the server's own component) |
+| Faults | `request_error`, `refresh_error`, `registry_error`, `bridge_mismatch` (the Desktop bridge and the server are different versions) |
+
+Events a caller without a token can trigger are written at most once a minute, so one line can stand for several requests. It rotates once at 256 KB and contains no secret material: tokens, codes and PKCE verifiers never reach it. `client_id` is logged in full, since it is public under PKCE and correlating it with the client's own log is the point.
 
 ### Editing the server with a client connected
 
-This affects contributors only. TouchDesigner re-initializes an extension whenever a synced DAT changes, which builds a fresh provider, so **every save of `MCPServerExt.py` or `OAuthProvider.py` discards all tokens and in-flight consents** while registrations reload from disk. A connected client gets a `401` on its next call.
+This affects contributors only. TouchDesigner re-initializes an extension whenever a synced DAT changes, which builds a fresh provider, so **every save of `mcp_server_ext.py` or `oauth_provider.py` discards all tokens and in-flight consents** while registrations reload from disk. A connected client gets a `401` on its next call.
 
 Each occurrence is logged, so it is distinguishable from a real fault:
 

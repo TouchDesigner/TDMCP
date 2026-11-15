@@ -1,45 +1,51 @@
-# TDMCP
+# TouchDesigner
 
-TouchDesigner for Claude, as one plugin. It carries `TDMCP.mcpb`, the
-bridge that connects Claude to the TDMCP component running inside
-TouchDesigner on this computer, and the `td-*` skills (TDMCP Skills
-1.4.1) that teach Claude how TouchDesigner networks are built.
-Claude Desktop starts the bridge for the chat, Cowork and Code sessions that
-run here, and all three load the skills.
+Lets Claude build and edit [TouchDesigner](https://derivative.ca) projects
+with you: create operators, wire them, set parameters, write shaders, and see
+what they output. TouchDesigner is a visual programming environment for
+real-time graphics, interactive installations and live visuals, made by
+[Derivative](https://derivative.ca).
 
-## Setup
+This plugin is half of the connection. The other half is a small component,
+`TDMCP.tox`, that runs inside TouchDesigner.
 
-1. Drop `TDMCP.tox` into the root of your TouchDesigner project and turn on
-   **Active**.
-2. Add **TouchDesigner** from the plugin directory in Claude, or upload
-   `Derivative-TDMCP.plugin` from the release with **Upload
-   plugin**. Accept the prompt that it runs on your computer.
-3. Start a conversation, or a Cowork or Code session, on this computer. On
-   the first connection a browser tab opens and TouchDesigner shows a consent
-   panel naming the client that is asking. Nothing connects until you decide
-   there.
+## Get started
 
-The plugin's version is the TDMCP version. Use it with the `TDMCP.tox` from
-the same release. The bridge talks to TouchDesigner on `127.0.0.1` only, on
-port 13316; Desktop offers no settings for a plugin-bundled server, so keep
-the component's **Port** at its default.
+1. **Install TouchDesigner** 2025.33230 or later from
+   [derivative.ca/download](https://derivative.ca/download). The
+   Non-Commercial licence is free with a Derivative account.
+2. **Add the component.** Download `TDMCP.tox` from the latest release at
+   [github.com/TouchDesigner/TDMCP/releases](https://github.com/TouchDesigner/TDMCP/releases).
+   Open TouchDesigner and drag the file from your Downloads folder into the
+   network, the large grid area. Click the new `tdmcp` node, press **P** if
+   no parameter window is showing, and on its **MCP** page switch **Active**
+   on.
+3. **Restart Claude Desktop** with TouchDesigner still open. Quit it fully
+   (File → Exit on Windows, Claude → Quit on macOS) and open it again. A
+   browser tab opens, and TouchDesigner shows a panel asking whether to let
+   Claude in. Press **Allow full control** and leave the tab open until it
+   finishes.
+4. **Use Cowork.** Start a conversation in **Cowork** mode, under the prompt
+   box, and ask: *What TouchDesigner project am I connected to?* Then try:
+   *Create a noise TOP, blur it, and end the chain in a null.* Plain Chat
+   does not load this plugin. Cowork needs a paid Claude plan.
 
-To update, upload the newer plugin over this one and start a new session. A
-session keeps the bridge it started with.
+Keep TouchDesigner open with **Active** on while you work.
 
-## Skills
+## What's included
 
-The skills cover planning, each operator family, GLSL, materials,
-components, layout and review. Claude loads one when a task calls for it;
-nothing needs installing. If you also installed the skills with the
-component's **Install Skills** for Claude Code, both copies load there and
-**Skills Status** on the component says so: keep the plugin and uninstall
-the component's copy, or the reverse.
+- The connection to the `TDMCP.tox` component, on this computer only.
+- 19 skills that teach Claude how TouchDesigner networks are built (TDMCP
+  Skills 1.4.3). Nothing to install.
+
+Use the `TDMCP.tox` from the same release as this plugin. To update, upload the
+newer plugin over this one and restart Claude Desktop.
 
 ## Safety
 
-The server includes `execute_code`, which runs Python inside TouchDesigner, so
-treat the connection as you would a shell on your machine. The bridge connects
-only to TouchDesigner on `127.0.0.1` and collects nothing. Full statement in
-the repository README under **Privacy**; policy at
-<https://derivative.ca/privacy>.
+Claude gets full control of the TouchDesigner project you allow, including
+running Python inside it, so treat the connection like a terminal on your
+computer. It only connects to TouchDesigner on this machine and sends nothing
+anywhere else. Privacy policy: <https://derivative.ca/privacy>.
+
+More help: [Claude Desktop guide](https://github.com/TouchDesigner/TDMCP/blob/main/docs/claude-desktop.md).

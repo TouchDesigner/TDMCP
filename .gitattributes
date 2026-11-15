@@ -1,0 +1,12 @@
+# Text is LF in the repository and in every checkout, Windows included: the
+# .py and .glsl files are synced into TouchDesigner DATs, and the plugin build
+# packs skill files as they are on disk.
+* text=auto eol=lf
+
+*.tox binary
+*.toe binary
+*.png binary
+*.mcpb binary
+*.plugin binary
+*.zip binary
+*.woff2 binary

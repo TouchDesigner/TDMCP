@@ -33,7 +33,8 @@ Start with the first section; it covers most reports. Every section assumes
 Hover **Skills Status** for every folder with its path and version. The usual causes:
 
 - **An old project install on top of the user install.** Keep one. Uninstall with **Uninstall Scope: All agents — this project**, or delete the project's `.claude/skills/td-*` folders.
-- **An account plugin.** The TDMCP plugin carries the skills, and a plugin on the account syncs to every Claude client on it, Claude Code included, under `~/.claude/plugins`. So a Claude Code user who has the plugin and also ran **Install Skills** loads both. The component never removes a plugin: keep it and uninstall the component's copy (**Uninstall Scope** at the scope it was installed to), or remove the plugin under **Customize → Plugins** in claude.ai or with `/plugin` in Claude Code.
+- **The plugin and a copy on disk.** The TDMCP plugin carries the skills, and a plugin on the account syncs to every Claude client on it, Claude Code included, under `~/.claude/plugins`. A copy that **Install Skills** made before the plugin was uploaded then loads beside it. Keep the plugin and press **Uninstall Skills** at the scope the copy was installed to. From 1.1.58, **Install Skills** makes no second copy while the plugin provides the skills: **Skills Status** reads `Provided by the account plugin`, and installing a separate copy takes a **Skills Source** or **Skills Version**. The component never removes a plugin; do that under **Customize → Plugins** in claude.ai or with `/plugin` in Claude Code.
+- **Two versions shown for the plugin.** A plugin from 1.1.58 on is listed with its skills version, such as `v1.4.2 (account plugin)`. An older one is listed as `TDMCP 1.1.57 plugin`, because it only records the TDMCP version it shipped with.
 
 Only the folders one client loads for this project are compared: the user folder, the project root, and account plugins. Copies in other projects load only in those projects and are not reported.
 
@@ -83,16 +84,8 @@ The consent page opens but never completes. The client is replaying a `client_id
 
 Confirm in the per-port log, `logs/tdmcp_13316.log` in the TDMCP state folder (substitute your port; the **Storage** page shows the exact path and opens the folder): `grep authorize_reject` on macOS, `Select-String authorize_reject` on Windows. `reason=unknown_client_id` is this failure. Fix by clearing the *registration*: `claude mcp logout touchdesigner`, or remove and re-add for other clients. For the Claude Desktop bridge, see *Authentication error after Clear Registrations* under Claude Desktop problems below.
 
-## Claude Desktop problems
+## Claude Desktop
 
-- **Upload plugin says the archive must contain `.claude-plugin/plugin.json`.** You gave it `TDMCP.mcpb`, or a zip of it. That page takes `Derivative-TDMCP.plugin` from the release, which wraps the bundle in a plugin manifest.
-- **Nothing under Connectors.** That page lists remote connectors. The plugin's server is on the plugin's own **Connectors** tab under **Customize → Plugins**, marked **Runs in each session**, and shows as **Tdmcp** in a session's connector list.
-- **Tools missing after uploading the plugin.** A session starts the bridge when it opens, and TouchDesigner must be Active by then. Make it Active and start a new session; or turn the plugin off and on under **Customize → Plugins**, or fully quit and relaunch Desktop.
-- **You uploaded a newer plugin, but a session still reports the old bridge version.** A session keeps the bridge process it started with. Start a new session.
-- **Add Custom Connector shows no tools.** It cannot reach a local server at all: connector calls come from Anthropic's cloud. Use `Derivative-TDMCP.plugin`, or the manual bridge in [docs/setup-advanced.md#claude-desktop](setup-advanced.md#claude-desktop).
-- **Authentication error after Clear Registrations.** The bridge caches its client id under `~/.mcp-auth` and keeps presenting it after the server has forgotten it, so every connect is refused. Delete that folder, then turn the plugin off and on; it registers fresh and the consent panel appears once. To cut off access without this, use **Revoke Access** instead: it keeps the registration, so the bridge simply signs in again. See [Revoke Access or Clear Registrations](setup-advanced.md#ending-access-revoke-access-or-clear-registrations).
-- **You changed Port.** The plugin cannot be configured and always uses 13316. Put the component back on 13316, or use the manual config.
-- **You turned the plugin off, but sessions still have TouchDesigner tools.** Desktop applies the **Disable plugin** toggle to local servers only when it next refreshes its plugin state or restarts, which can be an hour later; until then a running bridge keeps its access and new sessions get one too. To cut access now, press **Revoke Access** on the component's Storage page, or turn **Active** off. Removing the plugin and relaunching Desktop also ends it.
-- **You turned on Use HTTPS.** The bundle speaks plain HTTP only, which is safe on loopback, and goes silent when the server switches to TLS. Turn Use HTTPS off; the bundle needs nothing from mkcert. Ask for authentication stays on, as shipped.
-- **Desktop says it can't see `view_operator` images, only a file path.** Turn on **Inline Images (base64)** on the Tune page. Desktop cannot read the cache folder the path points to. More in [Tuning for Claude Desktop](setup-advanced.md#tuning-for-claude-desktop).
-- Desktop's MCP logs are under **Settings → Developer**.
+Sign-in that never finishes, a server Desktop shows as failed, missing tools
+and the other Desktop problems are covered on the
+[Claude Desktop](claude-desktop.md#troubleshooting) page.

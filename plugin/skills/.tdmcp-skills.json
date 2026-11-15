@@ -1,0 +1,25 @@
+{
+  "version": "1.4.3",
+  "source": "TouchDesigner/TDMCPSkills release 1.4.3",
+  "skills": [
+    "td-build-planning",
+    "td-chop-family",
+    "td-colab",
+    "td-comp-architecture",
+    "td-dat-family",
+    "td-general",
+    "td-geometry-instancing",
+    "td-glsl-shaders",
+    "td-lister-ui",
+    "td-mat-family",
+    "td-network-cleanup",
+    "td-node-layout",
+    "td-performance-check",
+    "td-pop-family",
+    "td-python-extension",
+    "td-review-network",
+    "td-sop-family",
+    "td-top-family",
+    "td-working-mode"
+  ]
+}

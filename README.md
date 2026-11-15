@@ -4,8 +4,10 @@
 >
 > TDMCP is in public beta. The component works and is in daily use, but the
 > interface may still change. Found a bug, or want to ask something? Start a
-> [discussion](https://github.com/TouchDesigner/TDMCP/discussions) and include
-> the **Version** and **.tox Save Build** from the component's About page.
+> [discussion](https://github.com/TouchDesigner/TDMCP/discussions) or open an
+> [issue](https://github.com/TouchDesigner/TDMCP/issues). Please include your
+> TouchDesigner build (**Help → About TouchDesigner**) and the TDMCP
+> **Version** from the component's About page.
 
 ## What it is
 
@@ -16,25 +18,54 @@ cook times, look up the TouchDesigner docs, and capture what an operator
 outputs. Everything it does lands in TouchDesigner's undo stack, so Ctrl+Z
 reverses it.
 
-It works with Claude Code, Claude Desktop, Codex, Antigravity, OpenCode, and any
-other client that speaks streamable-HTTP MCP.
+It is built for coding agents, Claude Code, Codex, Cursor, Antigravity and
+OpenCode, and works with any client that speaks streamable-HTTP MCP. Claude
+Desktop connects through a plugin: see [Claude Desktop](docs/claude-desktop.md).
 
 ## Start here
 
-Requires **TouchDesigner 2025.33230 or newer**.
+TDMCP lets an **AI agent** work inside your TouchDesigner project. You type
+what you want, such as "make me an airplane with a script POP" or "why is
+the render TOP black?", and the agent creates the operators, wires them and
+sets the parameters, or helps diagnose the issue, while you watch it happen
+in the network editor.
+
+You run an agent in one of two ways.
+
+- **In a terminal.** A terminal is the text window where you type commands:
+  Terminal on macOS, PowerShell on Windows. An agent that runs there is called
+  an agent CLI. You install it, open a terminal in your project folder, start
+  it by typing its command, and talk to it there. The steps below are for
+  these:
+
+  | Agent | From | Command |
+  |---|---|---|
+  | **Claude Code** | Anthropic | `claude` |
+  | Codex | OpenAI | `codex` |
+  | Antigravity | Google | `agy` |
+  | OpenCode | open source | `opencode` |
+
+  Cursor, an editor with an agent built in, works too.
+- **In an app.** **Claude Desktop** is the Claude app, with a window like any
+  other program and no terminal. It connects through a plugin, with its own
+  steps: [Claude Desktop](docs/claude-desktop.md).
+
+Claude Code and Claude Desktop are the same Claude, from Anthropic. Claude
+Code lives in the terminal; Claude Desktop is the app. Never used a terminal?
+Start with Claude Desktop.
+
+Requires **TouchDesigner 2025.33230 or newer**, and for the steps below, an
+agent CLI already installed.
 
 1. Download `TDMCP.tox` from [Releases](https://github.com/TouchDesigner/TDMCP/releases)
-   and drag it into the root of your project.
+   and drag it into your project.
 2. Turn on **Active** on the component's MCP page.
-3. On the same page, pick your client under **Install For**: Claude Code,
-   Codex, Cursor, Antigravity or OpenCode. (Claude Desktop needs none of
-   steps 3 to 6: install the plugin instead, below.)
-4. **Add MCP**, below it, is a read-only parameter holding the command for
-   that client. Click in the field, select the whole string and copy it.
-5. Open a terminal in your project folder, the one you run the agent's CLI
-   from. Paste the command on the command line and press Enter. That
-   registers the server with the agent; the next session you start there
-   lists TouchDesigner's tools.
+3. On the same page, pick your agent under **Install For**. Leave **Install
+   Scope** on **Local**.
+4. **Add MCP**, below it, holds the command for that agent. Click in the
+   field, select the whole string and copy it.
+5. Open a terminal in your project folder, paste the command and press Enter.
+   The next session you start there has TouchDesigner's tools.
 6. Back on the component, pulse **Install Skills**.
 
 For Claude Code, **Add MCP** gives you:
@@ -43,33 +74,28 @@ For Claude Code, **Add MCP** gives you:
 claude mcp add --transport http --scope local touchdesigner http://127.0.0.1:13316/mcp
 ```
 
+Already have the TouchDesigner plugin on your claude.ai account? Claude Code
+is connected without steps 3 to 6. Don't register again on port 13316, or
+every tool is listed twice. More in
+[Claude Code and the plugin](docs/claude-desktop.md#claude-code-and-the-plugin).
+
 Then ask your agent:
 
 > What TouchDesigner project am I connected to?
 
-A correct answer means the server is running, the client found it, and a tool
-call round-tripped. Now try something real:
+Now try something real:
 
 > Create a noise TOP, blur it, and end the chain in a null.
 
-**Claude Desktop** has no command to run. Download `Derivative-TDMCP.plugin` from the
-same release, open **Customize → Plugins → Add → Upload plugin** and drop it
-in. It carries the TDMCP bridge and the skills, and Desktop runs the bridge
-for chat, Cowork and Code sessions on your computer, all of which load the
-skills. Then turn on **Inline Images** on the component's Tune page, so
-Claude can see what it builds. Details in
-[Claude Desktop](docs/setup-advanced.md#claude-desktop).
-
 ## Download
 
-Every release carries the same three files.
+Every release carries the same files.
 
 | File | What it is |
 |---|---|
 | **TDMCP.tox** | The component. This is the server. |
-| **Derivative-TDMCP.plugin** | The bridge and the skills as one Claude plugin, for Claude Desktop. Other clients do not need it: they get the skills from **Install Skills**. |
+| **derivative_tdmcp.plugin** | The connection and the skills as one Claude plugin, for Claude Desktop and Claude Code. Other agents do not need it: they register the server with **Add MCP** and get the skills from **Install Skills**. |
 | **TDMCP.json** | The version and checksum of the `.tox`, which the About page's **Update** button verifies. Nothing to do with it by hand. |
-
 
 ## What you can do
 
@@ -92,10 +118,13 @@ planning, reviewing and cleaning up. Without them, the agent might guess
 at parameter names and build networks that don't work.
 
 The skills live in [TDMCPSkills](https://github.com/TouchDesigner/TDMCPSkills).
-Pulse **Install Skills** on the component and it fetches the latest release
-and puts it where your client looks. Claude Desktop gets the same skills as a
-plugin upload. The [component reference](docs/component.md#skills) lists the
-directory for each client.
+Claude gets them from the plugin, with nothing to install. For other agents,
+pulse **Install Skills** on the component and it fetches the latest release
+and puts it where your client looks. Use one route per client: with the
+plugin providing the skills, **Install Skills** installs nothing for Claude,
+because a second copy lists every skill twice. The
+[component reference](docs/component.md#skills) lists the directory for each
+client.
 
 ## Stay in control
 
@@ -103,8 +132,8 @@ The server exposes `execute_code`, which runs Python inside TouchDesigner.
 Treat a connection to it as you would a shell on your machine.
 
 - **Authentication is on by default.** The first time a client connects,
-  TouchDesigner shows a consent panel beside your mouse, naming the client
-  that is asking. Nothing gets control until you allow it there.
+  TouchDesigner shows a consent panel naming the client that is asking.
+  Nothing gets control until you allow it there.
 - **Localhost only, by default.** Requests from other machines are refused
   before anything runs. Opening the server to a network requires HTTPS and
   authentication together.
@@ -119,8 +148,10 @@ More in [Security and privacy](docs/security.md).
 
 - [Component reference](docs/component.md): every parameter on the six pages,
   the tools, where skills land, and what TDMCP writes to disk
-- [Advanced setup](docs/setup-advanced.md): other clients, HTTPS, Claude
-  Desktop, multiple instances, OAuth internals
+- [Claude Desktop](docs/claude-desktop.md): the plugin, Cowork, the Code tab,
+  images, and Desktop troubleshooting
+- [Advanced setup](docs/setup-advanced.md): other clients, HTTPS, several
+  clients and instances, OAuth internals
 - [Troubleshooting](docs/troubleshooting.md)
 - [OpenCode and local models](docs/opencode.md)
 - [Changelog](CHANGELOG.md)
@@ -133,11 +164,10 @@ product. Read the licence before shipping anything built on it.
 
 ## Support and feedback
 
-Questions and bug reports go to
-[Discussions](https://github.com/TouchDesigner/TDMCP/discussions). Include the
-**Version** and **.tox Save Build** from the About page, and what you asked the
-agent to do. Confirmed bugs are tracked internally, so you may be asked for a
-reproduction before one is filed.
+Start a [discussion](https://github.com/TouchDesigner/TDMCP/discussions) or
+open an [issue](https://github.com/TouchDesigner/TDMCP/issues). Please include
+your TouchDesigner build (**Help → About TouchDesigner**), the TDMCP **Version**
+from the component's About page, and what you asked the agent to do.
 
 TDMCP is made by [Derivative](https://derivative.ca), the makers of
 TouchDesigner.

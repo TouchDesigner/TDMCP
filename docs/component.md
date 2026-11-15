@@ -19,11 +19,11 @@ Six pages: **MCP**, **Skills**, **Tune**, **Docs**, **Storage**, **About**.
 | **Certs Folder** | Optional override for where the cert lives |
 | **Ask for authentication** | On by default. OAuth 2.1 with a consent panel inside TouchDesigner. See [Security](security.md#security) |
 | **Auto-accept deletion** | Skip the confirmation dialog on `delete_operator`. That is the only tool that raises one, and it is modal: the server answers nothing while it is open. Turn this on for unattended installs. See [Security](security.md#security) |
-| **Install For** | Which agent to set up. Default Claude Code. Pick **Claude Desktop (Code tab)** for the Code tab inside Claude Desktop, which needs the bridge form of the command (see [Claude Desktop Code tab](setup-advanced.md#claude-desktop-code-tab)) |
+| **Install For** | Which agent to set up. Default Claude Code. Pick **Claude Desktop (Code tab)** for the Code tab inside Claude Desktop, which needs the bridge form of the command (see [Claude Desktop Code tab](claude-desktop.md#claude-desktop-code-tab)) |
 | **Install Scope** | Rebuilt per agent to the scopes it supports. Default `Local — this folder, private to you`. Project and local scope install at the **project root**: the nearest folder above the `.toe` that holds `.git`, or the `.toe` folder when there is none. Override it with **Project Root** on the Skills page |
-| **Add MCP** / **Remove MCP** | Read-only, generated for the current selection |
-| **Install Skills** | Install for the current Install For × Install Scope |
-| **Skills Status** | Read-only. What is installed for that selection, and for project or local scope the folder it resolved to; the tooltip lists resolved directories. Warns when the selected agent loads `td-*` skills from more than one place, such as a project copy over the user install or a claude.ai account plugin; see [Skills listed twice](troubleshooting.md#skills-listed-twice-or-the-agent-follows-old-instructions) |
+| **Add MCP** / **Remove MCP** | Read-only, generated for the current selection. Claude Code with the TDMCP plugin synced from your claude.ai account is already connected on port 13316 and needs neither; registering as well lists every tool twice (see [Claude Code and the plugin](claude-desktop.md#claude-code-and-the-plugin)) |
+| **Install Skills** | Install for the current Install For × Install Scope. For a Claude client whose account plugin already provides the `td-*` skills it installs nothing, since a second copy lists every skill twice; set **Skills Source** or **Skills Version** to install a separate copy anyway |
+| **Skills Status** | Read-only. What is installed for that selection, and for project or local scope the folder it resolved to; the tooltip lists resolved directories. Reads `Provided by the account plugin` with its skills version when the selected Claude client gets the skills from the plugin and nothing is installed on disk. Warns when the selected agent loads `td-*` skills from more than one place, such as a project copy over the user install or a claude.ai account plugin; see [Skills listed twice](troubleshooting.md#skills-listed-twice-or-the-agent-follows-old-instructions) |
 
 **Running two TouchDesigner instances at once?** Give each component a different **Server Name**. Clients resolve one entry per name, so two servers both called `touchdesigner` means one silently shadows the other and your agent drives the wrong project.
 
@@ -31,7 +31,7 @@ Six pages: **MCP**, **Skills**, **Tune**, **Docs**, **Storage**, **About**.
 
 | Parameter | Notes |
 | --- | --- |
-| **System prompt DAT** | The DAT served to clients as MCP `instructions`. Defaults to `./SystemPrompt` |
+| **System prompt DAT** | The DAT served to clients as MCP `instructions`. Defaults to `./system_prompt` |
 | **Skills Source (blank = latest release)** | Blank downloads the latest published release. A path is used only when it resolves to a TDMCPSkills checkout; a stale path falls back to the release with a note |
 | **Skills Repo or Archive URL** / **Skills Version** | Override the repo (`owner/name`, a direct archive URL, or `file://`) and pin a release tag. Blank means `TouchDesigner/TDMCPSkills` at its latest release |
 | **Project Root (blank = git root)** | Where project- and local-scope skills go: the folder your agent starts in. Blank finds the nearest `.git` above the `.toe`. A relative path resolves against the `.toe` folder |
@@ -44,7 +44,7 @@ Six pages: **MCP**, **Skills**, **Tune**, **Docs**, **Storage**, **About**.
 
 ## Tune — rate limiting and visual feedback
 
-**Rate limiting** (`Enable` on, `Slow Threshold` 5.0s, `Cooldown` 1.0s) throttles after a slow tool call. **Inline Images (base64)** (off), **Image Cache Path** (blank) and **Request Log** (off) control image return and logging. With Inline Images off, captures are written as PNGs and the path returned: blank means the TDMCP state folder, `cache/<port>`, cleared when the server starts; a relative path is beside the project; an absolute path is used as given. **Node following** (`Follow Active`, `Follow Time`, `Highlight Nodes`, `Color Time`, `Color Delay`) drives the pan and highlight behaviour.
+**Rate limiting** (`Enable` on, `Slow Threshold` 5.0s, `Cooldown` 1.0s) throttles after a slow tool call. **Inline Images (base64)** (off), **Image Cache Path** (blank) and **Request Log** (off) control image return and logging. Inline Images on sends every capture inline to every client. Off, a Claude Desktop Cowork session still gets images inline, and Claude Code and other clients get the path of a PNG; see [Images in Claude Desktop](claude-desktop.md#images). The path is under blank means the TDMCP state folder, `cache/<port>`, cleared when the server starts; a relative path is beside the project; an absolute path is used as given. **Node following** (`Follow Active`, `Follow Time`, `Highlight Nodes`, `Color Time`, `Color Delay`) drives the pan and highlight behaviour.
 
 ## Docs — documentation source
 
@@ -57,11 +57,11 @@ Everything TDMCP keeps on your machine lives in one folder beside TouchDesigner'
 | Parameter | Notes |
 | --- | --- |
 | **State Folder** / **Open Folder** | The folder itself. **Open Folder** reveals it in Explorer or Finder |
-| **Connected Clients** | Read-only. Clients that sent a request in the last 10 minutes, most recent first, with the name and version each reports; the Claude Desktop bundle shows as `via TDMCP.mcpb <version>`. Told apart by registration with **Ask for authentication** on, by User-Agent with it off. See [Several clients on one instance](setup-advanced.md#several-clients-on-one-instance) |
+| **Connected Clients** | Read-only. Clients that sent a request in the last 10 minutes, most recent first, with the name and version each reports; the Claude Desktop bundle shows as `via tdmcp.mcpb <version>`. Told apart by registration with **Ask for authentication** on, by User-Agent with it off. See [Several clients on one instance](setup-advanced.md#several-clients-on-one-instance) |
 | **Revoke Access** | Ends every session on the port but keeps the registrations: drops the access tokens and `oauth_tokens_<port>.json`, and forgets which clients you allowed. Each client signs in again on its next request and the consent panel asks again. The everyday way to cut off access; clients that cache their id, like the Claude Desktop bridge, recover without help. See [Revoke Access or Clear Registrations](setup-advanced.md#ending-access-revoke-access-or-clear-registrations) |
 | **Registrations** / **Clear Registrations** | `oauth_clients_<port>.json`: which clients have registered, as public ids and names, no secrets. Beside it, `oauth_tokens_<port>.json` holds their live access tokens. Clearing empties the registrations file, removes the token file and ends every session on the port; clients register and consent again. Claude Desktop's bridge also needs its own cache cleared, see [Claude Desktop problems](troubleshooting.md#claude-desktop-problems). To end sessions without forgetting the clients, use **Revoke Access**; the two are compared in [Revoke Access or Clear Registrations](setup-advanced.md#ending-access-revoke-access-or-clear-registrations) |
 | **Logs** / **Clear Logs** | `logs/tdmcp_<port>.log`, plus one rotated `.1`: authentication and session events, never tool payloads. Clearing removes every log file |
-| **Capture Cache** / **Clear Cache** | `cache/<port>/`: `view_operator` PNGs when Inline Images is off. Emptied automatically when the server starts |
+| **Capture Cache** / **Clear Cache** | `cache/<port>/`: `view_operator` PNGs returned as a path rather than inline. Emptied automatically when the server starts |
 | **Status** | Read-only. What the last action did |
 
 Delete the whole folder to reset TDMCP. It is recreated on the next start.

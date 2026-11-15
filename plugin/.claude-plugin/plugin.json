@@ -1,7 +1,7 @@
 {
   "name": "touchdesigner",
   "displayName": "TouchDesigner",
-  "version": "1.1.57",
+  "version": "1.1.58",
   "description": "Collaborate with Claude to build and refine TouchDesigner projects.",
   "author": {
     "name": "Derivative",
@@ -18,5 +18,5 @@
     "generative"
   ],
   "icon": "./icon.png",
-  "mcpServers": "./TDMCP.mcpb"
+  "mcpServers": "./tdmcp.mcpb"
 }

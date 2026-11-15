@@ -11,6 +11,158 @@ matching tag.
 This changelog begins at the first public release. Earlier versions were
 internal builds and were never published.
 
+## [1.1.58] — 2026-11-14
+
+### Claude Desktop needs Cowork
+
+TouchDesigner's tools load in Claude Desktop's **Cowork** sessions and its
+**Code** tab, not in plain **Chat**: Desktop does not load a plugin's local
+server in Chat. Cowork needs a paid Claude plan. The docs said "chat, Cowork
+and Code"; they now say Cowork throughout, and the new
+[Claude Desktop](docs/claude-desktop.md) page gathers everything about the
+plugin, the Code tab, images and Desktop troubleshooting.
+
+### Added
+- **The event log records what the textport says.** `logs/tdmcp_<port>.log`
+  in the state folder is now the record to send with a bug report; the
+  textport is gone when TouchDesigner closes. New events: `server_start`
+  (component version, TouchDesigner build, scheme, port, address scope,
+  authentication on or off), `server_stop`, `server_blocked`, `https_cert`,
+  `request_refused` (non-local client, oversized body, cross-origin),
+  `rate_limited`, `consent_cap`, `consent_panel_error`, `self_path_refused`,
+  `request_error`, `refresh_error`, `registry_error` and `bridge_mismatch`.
+  Events a caller without a token can trigger are written at most once a
+  minute.
+- **`consent_shown` and `consent_expired`** in the event log
+  (#15). A sign-in nobody approved used to leave only
+  `auth_rejected` lines, which is also what a bridge that never began
+  sign-in leaves.
+- **`get_cook_performance` takes `max_age_frames`** (default 10) and reports
+  `framesSinceCook` on every entry; see Fixed.
+- **Troubleshooting: Claude Desktop sign-in that never finishes.** One
+  five-minute chance per attempt, how to get another (quit Desktop from the
+  tray on Windows), and what the log shows in each case.
+
+### Changed
+- **Renamed: the plugin is `derivative_tdmcp.plugin`**, and the bridge inside
+  it `tdmcp.mcpb`, in lower case with underscores. Upload the new file over
+  the old plugin as usual.
+- **`TDMCP.tox` and `TDMCP.json` keep their names for this release** and
+  become `tdmcp.tox` and `tdmcp.json` in 1.1.59. Components up to 1.1.57
+  download them by exact name, and a GitHub release cannot hold both
+  spellings, so the rename waits one release: **Update** in 1.1.58 reads
+  either name. If a script or link downloads them by name, be ready to
+  change it.
+- **Docs by audience.** The README is for coding agents (Claude Code, Codex,
+  Cursor, Antigravity, OpenCode). Claude Desktop has its own page. The release
+  notes are a short Claude Desktop setup. The plugin's README, which Desktop
+  shows when someone installs the plugin, now starts from what TouchDesigner
+  is and where to get it and `TDMCP.tox`.
+- **mcp-remote 0.16.6** in the Claude Desktop bridge and in the generated
+  `claude mcp add` command, up from 0.15.1. It brings three security fixes
+  (zod outside GHSA-mrhx-c7xc-m3w5, a patched fast-uri, and CVE-2026-108716:
+  https required for the device grant, and credentials no longer follow a
+  redirect to another origin), opens the browser for a fresh registration
+  after a stale one is cleared, and redeems a refresh token once after a
+  401. Its `body-parser` is updated to 1.20.9 (GHSA-27r3-jxmh-p828); the
+  bridge's dependencies audit clean.
+- **The textport stays quiet.** A working server prints one line there,
+  when it starts listening, with its URL; warnings, setup problems and errors
+  still print. Routine activity (sign-ins, starts and stops, cleared
+  captures, refused requests) goes to the console instead: the console
+  window on Windows, or the terminal TouchDesigner was started from. Lines a
+  caller can repeat, such as refused cross-origin or non-local requests and
+  rate-limit refusals, print at most once a minute for each kind, and a
+  request error prints its traceback once a minute and a one-line summary
+  otherwise. The event log still records everything.
+- **`view_operator` returns images by caller.** A Claude Desktop Cowork
+  session, which cannot open files, now gets captures inline without
+  any setting; before, it got only a file path and could not see what it
+  built. Claude Code, by any route, still gets the path and opens the file
+  when it needs to look, so its token use is unchanged. Any other client gets
+  the path with a one-line note naming **Inline Images (base64)**, which still
+  sends images inline to everyone when on. The tool description no longer
+  promises an inline image.
+- **Operators inside the component are snake_case**.
+  The component is `tdmcp` and its tools folder is `tools`; inside it are
+  `view`, `menu_extraction`, `mcp_server_ext`, `oauth_provider`,
+  `follow_system`, `skills_installer`, `hosts_registry`, `updater`, `hosts`,
+  `menu_values` and `system_prompt`. **System prompt DAT** defaults to
+  `./system_prompt`. Class names are unchanged, so `ext.MCPServerExt` still
+  resolves, and so do the parent shortcut `parent.TDMCP`, `TDMCP.tox`,
+  `TDMCP.json` and the state folder. **Update** keeps the name of the
+  component it replaces, so an existing `TDMCP` stays `TDMCP`. Source files
+  take the operator names: `TDMCP/mcp_server_ext.py` and so on.
+- **One skills source for Claude** (#5). For a Claude
+  client whose account plugin already provides the `td-*` skills, **Install
+  Skills** installs nothing, since a second copy lists every skill twice,
+  and **Skills Status** reads `Provided by the account plugin` with the
+  skills version. Setting **Skills Source** or **Skills Version** is a
+  deliberate choice and still installs.
+- **The plugin ships TDMCP Skills 1.4.3** and says so in a manifest inside
+  its `skills/` folder, the same one **Install Skills** writes. Skills
+  Status shows `v1.4.3 (account plugin)`; it used to show the plugin's
+  `plugin.json` version, the TDMCP version, beside a skills version. A
+  plugin without the manifest is listed as `TDMCP 1.1.57 plugin`.
+- **`bridgeVersion` is the caller's bridge.** `project_info` reports the
+  version of the bridge that sent the request, not the last one any bridge
+  sent, and a client with no bridge gets no `bridgeVersion`. After a plugin
+  upgrade two bridge versions talk to one server; a session on the current
+  bridge was told it was on the old one. The mismatch warning prints, and is
+  logged, once per mismatched version.
+- **Serial ports and audio output channels are no longer in the menu
+  catalog.** They are machine state, like device and font menus.
+
+### Fixed
+- **Install Scope starts on Local and does not fall back to User.** The
+  component now ships with the documented defaults, Claude Code and Local. When a change of Install For leaves the scope unsupported,
+  it lands on Local, then Project, and User only for an agent with nothing
+  narrower. A user-scope registration answers in every folder, so a second
+  project's own `touchdesigner` could be shadowed or confused with it.
+- **The consent panel opens in the middle of the screen the mouse is on.**
+  It opened under the mouse, so with the mouse near a screen edge its
+  buttons were out of reach and it had to be dragged; the next request then
+  put it back under the mouse.
+- **The consent panel's countdown could start part-way down.** The bar's
+  full width was learned from the bar itself, so a component reloaded while
+  a panel was counting down took the shrunk width as full, and every later
+  request started there. The full width now comes from the panel's layout.
+- **`get_help` reported types and components that do not exist**
+  (#13). It trusted TouchDesigner's bundled
+  `TDParameterHelp.json`, which lags the build: on 2025.33230 it typed 711
+  of 15,661 parameters differently from the operator, listed 728 that do not
+  exist and omitted 766 that do. `gridPOP size` was given a `sizew`,
+  `circlePOP rad` a `radz`, and `levelTOP clampinput`, a three-entry menu,
+  was a Toggle with `components`. The catalog extracted from the running
+  build now records each operator's real tuplet components and the style and
+  label of every parameter, and `get_help` takes names and types from it
+  whenever the catalog matches the running build, keeping the JSON for
+  summaries. On another build the JSON stays the list.
+- **`get_cook_performance` ranked operators that were not cooking**
+  (#14). `cookTime` is the duration of the last cook,
+  however long ago, so an operator that cooked once at creation topped the
+  list for good. One that has not cooked within `max_age_frames` is now
+  marked `stale`, carries no `budgetPct`, and sorts after the operators that
+  are cooking; `staleCount` says how many. `budgetPct` and the default sort
+  count CPU plus GPU time, where they counted CPU alone.
+- **Consent panel: Allow full control could be missing**. On some Windows machines neither button
+  plate was drawn, and Allow's dark label vanished on the dark panel, so the
+  request could not be approved. The panel's background image now carries
+  both plates, and the plates are redrawn when the panel opens and twice a
+  second after. Not reproduced, so this is defensive.
+- **The duplicate-skills warning fired on a replaced plugin.** Uploading a
+  plugin again syncs it into `touchdesigner~g2` beside the old
+  `touchdesigner` folder, which stays on disk. Skills Status counted both
+  and warned of `td-* skills in 2 places` to anyone who had updated the
+  plugin once. Only the newest generation is counted.
+- **Connected Clients cut the Desktop bridge's name mid-bracket**, as
+  `...tdmcp (via mcp-remote  via TDMCP.mcpb 1.1.57`. It now reads
+  `...tdmcp via tdmcp.mcpb 1.1.57`.
+- **Plugin text files ship with LF line endings** whatever the skills
+  archive carries. The 1.4.1 archive was built on Windows and turned every
+  skill file in the public repo's `plugin/` folder into a whitespace-only
+  diff.
+
 ## [1.1.57] — 2026-11-10
 
 ### Added
