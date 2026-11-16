@@ -8,6 +8,9 @@
 > [issue](https://github.com/TouchDesigner/TDMCP/issues). Please include your
 > TouchDesigner build (**Help → About TouchDesigner**) and the TDMCP
 > **Version** from the component's About page.
+>
+> What is tested, what is not, and what we want to hear about:
+> [Beta status](docs/beta.md).
 
 ## What it is
 
@@ -119,7 +122,7 @@ planning, reviewing and cleaning up. Without them, the agent might guess
 at parameter names and build networks that don't work.
 
 The skills live in [TDMCPSkills](https://github.com/TouchDesigner/TDMCPSkills).
-Claude gets them from the plugin, with nothing to install. For other agents,
+Claude gets them from the plugin, with no separate skills install. For other agents,
 pulse **Install Skills** on the component and it fetches the latest release
 and puts it where your client looks. Use one route per client: with the
 plugin providing the skills, **Install Skills** installs nothing for Claude,
@@ -154,6 +157,7 @@ More in [Security and privacy](docs/security.md).
 - [Advanced setup](docs/setup-advanced.md): other clients, HTTPS, several
   clients and instances, OAuth internals
 - [Troubleshooting](docs/troubleshooting.md)
+- [Beta status](docs/beta.md): what is tested, what is not, known limits
 - [OpenCode and local models](docs/opencode.md)
 - [Changelog](CHANGELOG.md)
 
