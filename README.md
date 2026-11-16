@@ -48,7 +48,8 @@ You run an agent in one of two ways.
   Cursor, an editor with an agent built in, works too.
 - **In an app.** **Claude Desktop** is the Claude app, with a window like any
   other program and no terminal. It connects through a plugin, with its own
-  steps: [Claude Desktop](docs/claude-desktop.md).
+  steps: [Claude Desktop](docs/claude-desktop.md). The plugin needs
+  [Node.js](https://nodejs.org) installed.
 
 Claude Code and Claude Desktop are the same Claude, from Anthropic. Claude
 Code lives in the terminal; Claude Desktop is the app. Never used a terminal?

@@ -18,8 +18,14 @@ the `td-*` skills that teach Claude how TouchDesigner networks are built.
   when you start a conversation. Anthropic describes Cowork in
   [Get started with Cowork](https://support.claude.com/en/articles/13345190-get-started-with-cowork).
 
-Nothing else to install: the plugin carries its own copy of the bridge and runs
-on the Node.js inside Claude Desktop.
+- **[Node.js](https://nodejs.org) 18 or later.** Claude Desktop starts the
+  plugin's bridge with the `node` on your computer and does not use its own
+  for a plugin. Download the LTS installer from nodejs.org and accept its
+  defaults. Without it the plugin's server fails the moment it starts: see
+  [The server fails at once](#the-server-fails-at-once-nodejs-is-missing).
+
+The plugin carries its own copy of the bridge, so there is nothing to
+download beyond Node.js itself.
 
 ## Quick start
 
@@ -47,7 +53,7 @@ The plugin uses the bundle's default port, 13316, and Desktop offers no settings
 
 **Updating.** Upload the newer `derivative_tdmcp.plugin` the same way; Desktop replaces the installed plugin in place and the plugins page shows the new version. A session that is already open keeps the bridge it started with, so start a new session to pick up the new one. The plugin's version is its TDMCP version; use it with the `.tox` from the same release. Plugins are saved to your account, so the same upload also reaches Claude Code signed in as you, as a synced plugin.
 
-The bundle carries its own copy of the `mcp-remote` bridge and runs on the Node.js inside Claude Desktop. Nothing to install, no config file. The host is fixed to `127.0.0.1`.
+The bundle carries its own copy of the `mcp-remote` bridge and runs on the Node.js installed on your computer, version 18 or later. Desktop has a Node.js of its own but uses it only for extensions, not for a plugin's server. No config file. The host is fixed to `127.0.0.1`.
 
 **HTTP, HTTPS and authentication with the bundle.** The bundle talks plain HTTP on loopback, which nothing on the machine can intercept, so it needs no certificate and nothing from mkcert. Leave **Use HTTPS** off on the component: the bundle only speaks HTTP and goes silent if the server switches to TLS. **Ask for authentication** is on as shipped and works as it does for any client: the first connection opens a browser tab, TouchDesigner raises its consent panel in the middle of the screen the mouse is on, and the bridge keeps its registration under `~/.mcp-auth`; the access token lives in the TDMCP state folder for 24 hours, so a TouchDesigner restart within that window reconnects without asking. To make the server forget the bridge, use **Clear Registrations** on the component's Storage page, delete the bridge's own cache (`~/.mcp-auth`, where it keeps the client id the server just forgot; the bridge does not re-register on its own, it keeps presenting the old id and is refused as `unknown_client_id`), then turn the plugin off and on in Desktop.
 
@@ -152,6 +158,14 @@ The caller is known from the name its client gave when it connected, as shown un
 **`curl` fails on Windows but the client works.** `SEC_E_UNTRUSTED_ROOT` and `CRYPT_E_NO_REVOCATION_CHECK` are a schannel quirk: it demands a revocation endpoint mkcert certs do not publish. Not a real trust failure. Verify with `Invoke-RestMethod` or `curl --ssl-revoke-best-effort`.
 
 ## Troubleshooting
+
+### The server fails at once: Node.js is missing
+
+Desktop shows **tdmcp** as failed as soon as it starts, no browser tab opens, and TouchDesigner shows no panel. Retrying fails the same way within a second. Desktop runs the plugin's bridge with the command `node`, and there is none on this computer.
+
+Install Node.js 18 or later from [nodejs.org](https://nodejs.org) (the LTS installer, default options), then fully quit Claude Desktop and open it again so it sees the new program.
+
+To confirm, open Desktop's log, `%LOCALAPPDATA%\Claude\logs\main.log` on Windows or `~/Library/Logs/Claude/main.log` on macOS, and search for `plugin:touchdesigner:tdmcp`. `Using MCP server command: node` followed at once by `Failed to connect ... Connection closed` means Node.js was not found; when it is found the line names the full path to `node`. The TDMCP event log shows nothing, because no request ever reached TouchDesigner.
 
 ### Sign-in never finishes, or the server shows as failed
 

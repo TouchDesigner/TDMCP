@@ -14,18 +14,22 @@ This plugin is half of the connection. The other half is a small component,
 1. **Install TouchDesigner** 2025.33230 or later from
    [derivative.ca/download](https://derivative.ca/download). The
    Non-Commercial licence is free with a Derivative account.
-2. **Add the component.** Download `TDMCP.tox` from the latest release at
+2. **Install Node.js** from [nodejs.org](https://nodejs.org): download the
+   LTS installer and accept its defaults. Claude Desktop uses it to run this
+   plugin's connection. Skip this step if you already have Node.js 18 or
+   later.
+3. **Add the component.** Download `TDMCP.tox` from the latest release at
    [github.com/TouchDesigner/TDMCP/releases](https://github.com/TouchDesigner/TDMCP/releases).
    Open TouchDesigner and drag the file from your Downloads folder into the
    network, the large grid area. Click the new `tdmcp` node, press **P** if
    no parameter window is showing, and on its **MCP** page switch **Active**
    on.
-3. **Restart Claude Desktop** with TouchDesigner still open. Quit it fully
+4. **Restart Claude Desktop** with TouchDesigner still open. Quit it fully
    (File → Exit on Windows, Claude → Quit on macOS) and open it again. A
    browser tab opens, and TouchDesigner shows a panel asking whether to let
    Claude in. Press **Allow full control** and leave the tab open until it
    finishes.
-4. **Use Cowork.** Start a conversation in **Cowork** mode, under the prompt
+5. **Use Cowork.** Start a conversation in **Cowork** mode, under the prompt
    box, and ask: *What TouchDesigner project am I connected to?* Then try:
    *Create a noise TOP, blur it, and end the chain in a null.* Plain Chat
    does not load this plugin. Cowork needs a paid Claude plan.
@@ -36,7 +40,7 @@ Keep TouchDesigner open with **Active** on while you work.
 
 - The connection to the `TDMCP.tox` component, on this computer only.
 - 19 skills that teach Claude how TouchDesigner networks are built (TDMCP
-  Skills 1.4.3). Nothing to install.
+  Skills 1.4.3). They need no install of their own.
 
 Use the `TDMCP.tox` from the same release as this plugin. To update, upload the
 newer plugin over this one and restart Claude Desktop.
